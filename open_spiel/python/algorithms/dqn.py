@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """DQN agent implemented in TensorFlow."""
 
 import collections
@@ -33,6 +32,7 @@ Transition = collections.namedtuple(
 
 ILLEGAL_ACTION_LOGITS_PENALTY = -1e9
 supported_model_types = ["mlp", "conv2d"]
+
 
 class DQN(rl_agent.AbstractAgent):
   """DQN Agent implementation in TensorFlow.
@@ -120,26 +120,27 @@ class DQN(rl_agent.AbstractAgent):
         name="legal_actions_mask_ph")
 
     if model_type == "mlp":
-      self._q_network = simple_nets.MLP(
-          state_representation_size, self._layer_sizes, num_actions)
-      self._target_q_network = simple_nets.MLP(
-          state_representation_size, self._layer_sizes, num_actions)
+      self._q_network = simple_nets.MLP(state_representation_size,
+                                        self._layer_sizes, num_actions)
+      self._target_q_network = simple_nets.MLP(state_representation_size,
+                                               self._layer_sizes, num_actions)
     elif model_type == "conv2d":
       self._q_network = simple_nets.ConvNet(
-          input_size=state_representation_size, 
+          input_size=state_representation_size,
           input_shape=input_shape,
-          conv_layer_info=self._conv_layer_info, 
-          dense_layer_sizes=self._layer_sizes, 
+          conv_layer_info=self._conv_layer_info,
+          dense_layer_sizes=self._layer_sizes,
           output_size=num_actions)
       self._target_q_network = simple_nets.ConvNet(
-          input_size=state_representation_size, 
+          input_size=state_representation_size,
           input_shape=input_shape,
-          conv_layer_info=self._conv_layer_info, 
-          dense_layer_sizes=self._layer_sizes, 
+          conv_layer_info=self._conv_layer_info,
+          dense_layer_sizes=self._layer_sizes,
           output_size=num_actions)
     else:
-      raise ValueError(f"Unknown model type: {model_type}\n",
-                       f"Supported model types are: [{supported_model_types}].")
+      raise ValueError(
+          f"Unknown model type: {model_type}\n",
+          f"Supported model types are: [{supported_model_types}].")
     self._q_values = self._q_network(self._info_state_ph)
     self._target_q_values = self._target_q_network(self._next_info_state_ph)
 

@@ -1,0 +1,303 @@
+game: dark_hex_ir
+
+GameType.chance_mode = ChanceMode.DETERMINISTIC
+GameType.dynamics = Dynamics.SEQUENTIAL
+GameType.information = Information.IMPERFECT_INFORMATION
+GameType.long_name = "Dark Hex with Imperfect Recall"
+GameType.max_num_players = 2
+GameType.min_num_players = 2
+GameType.parameter_specification = ["board_size", "gameversion", "num_cols", "num_rows", "obstype"]
+GameType.provides_information_state_string = True
+GameType.provides_information_state_tensor = True
+GameType.provides_observation_string = True
+GameType.provides_observation_tensor = True
+GameType.provides_factored_observation_string = False
+GameType.reward_model = RewardModel.TERMINAL
+GameType.short_name = "dark_hex_ir"
+GameType.utility = Utility.ZERO_SUM
+
+NumDistinctActions() = 9
+PolicyTensorShape() = [9]
+MaxChanceOutcomes() = 0
+GetParameters() = {board_size=3,gameversion=cdh,num_cols=3,num_rows=3,obstype=reveal-nothing}
+NumPlayers() = 2
+MinUtility() = -1.0
+MaxUtility() = 1.0
+UtilitySum() = 0.0
+InformationStateTensorShape() = [3, 3, 3]
+InformationStateTensorLayout() = TensorLayout.CHW
+InformationStateTensorSize() = 27
+ObservationTensorShape() = [3, 3, 3]
+ObservationTensorLayout() = TensorLayout.CHW
+ObservationTensorSize() = 27
+MaxGameLength() = 17
+ToString() = "dark_hex_ir()"
+
+# State 0
+# . . .
+#  . . .
+#   . . .
+IsTerminal() = False
+History() = []
+HistoryString() = ""
+IsChanceNode() = False
+IsSimultaneousNode() = False
+CurrentPlayer() = 0
+InformationStateString(0) = "P0\n...\n...\n..."
+InformationStateString(1) = "P1\n...\n...\n..."
+InformationStateTensor(0):
+◯◯◯  ◯◯◯  ◉◉◉
+◯◯◯  ◯◯◯  ◉◉◉
+◯◯◯  ◯◯◯  ◉◉◉
+InformationStateTensor(1):
+◯◯◯  ◯◯◯  ◉◉◉
+◯◯◯  ◯◯◯  ◉◉◉
+◯◯◯  ◯◯◯  ◉◉◉
+ObservationString(0) = "...\n...\n..."
+ObservationString(1) = "...\n...\n..."
+ObservationTensor(0):
+◯◯◯  ◯◯◯  ◉◉◉
+◯◯◯  ◯◯◯  ◉◉◉
+◯◯◯  ◯◯◯  ◉◉◉
+ObservationTensor(1):
+◯◯◯  ◯◯◯  ◉◉◉
+◯◯◯  ◯◯◯  ◉◉◉
+◯◯◯  ◯◯◯  ◉◉◉
+Rewards() = [0.0, 0.0]
+Returns() = [0.0, -0.0]
+LegalActions() = [0, 1, 2, 3, 4, 5, 6, 7, 8]
+StringLegalActions() = ["y(0,0)", "y(1,0)", "y(2,0)", "x(0,1)", "x(1,1)", "x(2,1)", "z(0,2)", "z(1,2)", "z(2,2)"]
+
+# Apply action "x(0,1)"
+action: 3
+
+# State 1
+# . . .
+#  x . .
+#   . . .
+IsTerminal() = False
+History() = [3]
+HistoryString() = "3"
+IsChanceNode() = False
+IsSimultaneousNode() = False
+CurrentPlayer() = 1
+InformationStateString(0) = "P0\n...\nx..\n..."
+InformationStateString(1) = "P1\n...\n...\n..."
+InformationStateTensor(0):
+◯◯◯  ◯◯◯  ◉◉◉
+◉◯◯  ◯◯◯  ◯◉◉
+◯◯◯  ◯◯◯  ◉◉◉
+InformationStateTensor(1):
+◯◯◯  ◯◯◯  ◉◉◉
+◯◯◯  ◯◯◯  ◉◉◉
+◯◯◯  ◯◯◯  ◉◉◉
+ObservationString(0) = "...\nx..\n..."
+ObservationString(1) = "...\n...\n..."
+ObservationTensor(0):
+◯◯◯  ◯◯◯  ◉◉◉
+◉◯◯  ◯◯◯  ◯◉◉
+◯◯◯  ◯◯◯  ◉◉◉
+ObservationTensor(1):
+◯◯◯  ◯◯◯  ◉◉◉
+◯◯◯  ◯◯◯  ◉◉◉
+◯◯◯  ◯◯◯  ◉◉◉
+Rewards() = [0.0, 0.0]
+Returns() = [0.0, -0.0]
+LegalActions() = [0, 1, 2, 3, 4, 5, 6, 7, 8]
+StringLegalActions() = ["p(0,0)", "o(1,0)", "q(2,0)", "p(0,1)", "o(1,1)", "q(2,1)", "p(0,2)", "o(1,2)", "q(2,2)"]
+
+# Apply action "o(1,0)"
+action: 1
+
+# State 2
+# . o .
+#  x . .
+#   . . .
+IsTerminal() = False
+History() = [3, 1]
+HistoryString() = "3, 1"
+IsChanceNode() = False
+IsSimultaneousNode() = False
+CurrentPlayer() = 0
+InformationStateString(0) = "P0\n...\nx..\n..."
+InformationStateString(1) = "P1\n.o.\n...\n..."
+InformationStateTensor(0):
+◯◯◯  ◯◯◯  ◉◉◉
+◉◯◯  ◯◯◯  ◯◉◉
+◯◯◯  ◯◯◯  ◉◉◉
+InformationStateTensor(1):
+◯◯◯  ◯◉◯  ◉◯◉
+◯◯◯  ◯◯◯  ◉◉◉
+◯◯◯  ◯◯◯  ◉◉◉
+ObservationString(0) = "...\nx..\n..."
+ObservationString(1) = ".o.\n...\n..."
+ObservationTensor(0):
+◯◯◯  ◯◯◯  ◉◉◉
+◉◯◯  ◯◯◯  ◯◉◉
+◯◯◯  ◯◯◯  ◉◉◉
+ObservationTensor(1):
+◯◯◯  ◯◉◯  ◉◯◉
+◯◯◯  ◯◯◯  ◉◉◉
+◯◯◯  ◯◯◯  ◉◉◉
+Rewards() = [0.0, 0.0]
+Returns() = [0.0, -0.0]
+LegalActions() = [0, 1, 2, 4, 5, 6, 7, 8]
+StringLegalActions() = ["y(0,0)", "y(1,0)", "y(2,0)", "x(1,1)", "x(2,1)", "z(0,2)", "z(1,2)", "z(2,2)"]
+
+# Apply action "y(0,0)"
+action: 0
+
+# State 3
+# y o .
+#  y . .
+#   . . .
+IsTerminal() = False
+History() = [3, 1, 0]
+HistoryString() = "3, 1, 0"
+IsChanceNode() = False
+IsSimultaneousNode() = False
+CurrentPlayer() = 1
+InformationStateString(0) = "P0\nx..\nx..\n..."
+InformationStateString(1) = "P1\n.o.\n...\n..."
+InformationStateTensor(0):
+◉◯◯  ◯◯◯  ◯◉◉
+◉◯◯  ◯◯◯  ◯◉◉
+◯◯◯  ◯◯◯  ◉◉◉
+InformationStateTensor(1):
+◯◯◯  ◯◉◯  ◉◯◉
+◯◯◯  ◯◯◯  ◉◉◉
+◯◯◯  ◯◯◯  ◉◉◉
+ObservationString(0) = "x..\nx..\n..."
+ObservationString(1) = ".o.\n...\n..."
+ObservationTensor(0):
+◉◯◯  ◯◯◯  ◯◉◉
+◉◯◯  ◯◯◯  ◯◉◉
+◯◯◯  ◯◯◯  ◉◉◉
+ObservationTensor(1):
+◯◯◯  ◯◉◯  ◉◯◉
+◯◯◯  ◯◯◯  ◉◉◉
+◯◯◯  ◯◯◯  ◉◉◉
+Rewards() = [0.0, 0.0]
+Returns() = [0.0, -0.0]
+LegalActions() = [0, 2, 3, 4, 5, 6, 7, 8]
+StringLegalActions() = ["p(0,0)", "q(2,0)", "p(0,1)", "o(1,1)", "q(2,1)", "p(0,2)", "o(1,2)", "q(2,2)"]
+
+# Apply action "o(1,1)"
+action: 4
+
+# State 4
+# y o .
+#  y o .
+#   . . .
+IsTerminal() = False
+History() = [3, 1, 0, 4]
+HistoryString() = "3, 1, 0, 4"
+IsChanceNode() = False
+IsSimultaneousNode() = False
+CurrentPlayer() = 0
+InformationStateString(0) = "P0\nx..\nx..\n..."
+InformationStateString(1) = "P1\n.o.\n.o.\n..."
+InformationStateTensor(0):
+◉◯◯  ◯◯◯  ◯◉◉
+◉◯◯  ◯◯◯  ◯◉◉
+◯◯◯  ◯◯◯  ◉◉◉
+InformationStateTensor(1):
+◯◯◯  ◯◉◯  ◉◯◉
+◯◯◯  ◯◉◯  ◉◯◉
+◯◯◯  ◯◯◯  ◉◉◉
+ObservationString(0) = "x..\nx..\n..."
+ObservationString(1) = ".o.\n.o.\n..."
+ObservationTensor(0):
+◉◯◯  ◯◯◯  ◯◉◉
+◉◯◯  ◯◯◯  ◯◉◉
+◯◯◯  ◯◯◯  ◉◉◉
+ObservationTensor(1):
+◯◯◯  ◯◉◯  ◉◯◉
+◯◯◯  ◯◉◯  ◉◯◉
+◯◯◯  ◯◯◯  ◉◉◉
+Rewards() = [0.0, 0.0]
+Returns() = [0.0, -0.0]
+LegalActions() = [1, 2, 4, 5, 6, 7, 8]
+StringLegalActions() = ["y(1,0)", "y(2,0)", "y(1,1)", "x(2,1)", "X(0,2)", "z(1,2)", "z(2,2)"]
+
+# Apply action "x(2,1)"
+action: 5
+
+# State 5
+# y o .
+#  y o x
+#   . . .
+IsTerminal() = False
+History() = [3, 1, 0, 4, 5]
+HistoryString() = "3, 1, 0, 4, 5"
+IsChanceNode() = False
+IsSimultaneousNode() = False
+CurrentPlayer() = 1
+InformationStateString(0) = "P0\nx..\nx.x\n..."
+InformationStateString(1) = "P1\n.o.\n.o.\n..."
+InformationStateTensor(0):
+◉◯◯  ◯◯◯  ◯◉◉
+◉◯◉  ◯◯◯  ◯◉◯
+◯◯◯  ◯◯◯  ◉◉◉
+InformationStateTensor(1):
+◯◯◯  ◯◉◯  ◉◯◉
+◯◯◯  ◯◉◯  ◉◯◉
+◯◯◯  ◯◯◯  ◉◉◉
+ObservationString(0) = "x..\nx.x\n..."
+ObservationString(1) = ".o.\n.o.\n..."
+ObservationTensor(0):
+◉◯◯  ◯◯◯  ◯◉◉
+◉◯◉  ◯◯◯  ◯◉◯
+◯◯◯  ◯◯◯  ◉◉◉
+ObservationTensor(1):
+◯◯◯  ◯◉◯  ◉◯◉
+◯◯◯  ◯◉◯  ◉◯◉
+◯◯◯  ◯◯◯  ◉◉◉
+Rewards() = [0.0, 0.0]
+Returns() = [0.0, -0.0]
+LegalActions() = [0, 2, 3, 5, 6, 7, 8]
+StringLegalActions() = ["p(0,0)", "q(2,0)", "p(0,1)", "q(2,1)", "p(0,2)", "o(1,2)", "q(2,2)"]
+
+# Apply action "p(0,2)"
+action: 6
+
+# State 6
+# Apply action "z(2,2)"
+action: 8
+
+# State 7
+# Apply action "O(2,0)"
+action: 2
+
+# State 8
+# y p O
+#  y p z
+#   p . z
+IsTerminal() = True
+History() = [3, 1, 0, 4, 5, 6, 8, 2]
+HistoryString() = "3, 1, 0, 4, 5, 6, 8, 2"
+IsChanceNode() = False
+IsSimultaneousNode() = False
+CurrentPlayer() = -4
+InformationStateString(0) = "P0\nx..\nx.x\n..x"
+InformationStateString(1) = "P1\n.oO\n.o.\no.."
+InformationStateTensor(0):
+◉◯◯  ◯◯◯  ◯◉◉
+◉◯◉  ◯◯◯  ◯◉◯
+◯◯◉  ◯◯◯  ◉◉◯
+InformationStateTensor(1):
+◯◯◯  ◯◉◉  ◉◯◯
+◯◯◯  ◯◉◯  ◉◯◉
+◯◯◯  ◉◯◯  ◯◉◉
+ObservationString(0) = "x..\nx.x\n..x"
+ObservationString(1) = ".oO\n.o.\no.."
+ObservationTensor(0):
+◉◯◯  ◯◯◯  ◯◉◉
+◉◯◉  ◯◯◯  ◯◉◯
+◯◯◉  ◯◯◯  ◉◉◯
+ObservationTensor(1):
+◯◯◯  ◯◉◉  ◉◯◯
+◯◯◯  ◯◉◯  ◉◯◉
+◯◯◯  ◉◯◯  ◯◉◉
+Rewards() = [-1.0, 1.0]
+Returns() = [-1.0, 1.0]

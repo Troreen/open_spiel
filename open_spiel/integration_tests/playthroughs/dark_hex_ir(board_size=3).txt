@@ -24,12 +24,12 @@ NumPlayers() = 2
 MinUtility() = -1.0
 MaxUtility() = 1.0
 UtilitySum() = 0.0
-InformationStateTensorShape() = [268]
+InformationStateTensorShape() = [3, 3, 3]
 InformationStateTensorLayout() = TensorLayout.CHW
-InformationStateTensorSize() = 268
-ObservationTensorShape() = [81]
+InformationStateTensorSize() = 27
+ObservationTensorShape() = [3, 3, 3]
 ObservationTensorLayout() = TensorLayout.CHW
-ObservationTensorSize() = 81
+ObservationTensorSize() = 27
 MaxGameLength() = 17
 ToString() = "dark_hex_ir(board_size=3)"
 
@@ -43,10 +43,16 @@ HistoryString() = ""
 IsChanceNode() = False
 IsSimultaneousNode() = False
 CurrentPlayer() = 0
-InformationStateString(0) = "P0 ...\n...\n..."
-InformationStateString(1) = "P1 ...\n...\n..."
-InformationStateTensor(0): binvec(268, 0x804020100804020100800000000000000000000000000000000000000000000000)
-InformationStateTensor(1): binvec(268, 0x804020100804020100800000000000000000000000000000000000000000000000)
+InformationStateString(0) = "P0\n...\n...\n..."
+InformationStateString(1) = "P1\n...\n...\n..."
+InformationStateTensor(0):
+◯◯◯  ◯◯◯  ◉◉◉
+◯◯◯  ◯◯◯  ◉◉◉
+◯◯◯  ◯◯◯  ◉◉◉
+InformationStateTensor(1):
+◯◯◯  ◯◯◯  ◉◉◉
+◯◯◯  ◯◯◯  ◉◉◉
+◯◯◯  ◯◯◯  ◉◉◉
 ObservationString(0) = "...\n...\n..."
 ObservationString(1) = "...\n...\n..."
 ObservationTensor(0): ◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯
@@ -69,10 +75,16 @@ HistoryString() = "4"
 IsChanceNode() = False
 IsSimultaneousNode() = False
 CurrentPlayer() = 1
-InformationStateString(0) = "P0 ...\n.x.\n..."
-InformationStateString(1) = "P1 ...\n...\n..."
-InformationStateTensor(0): binvec(268, 0x804020100404020100802000000000000000000000000000000000000000000000)
-InformationStateTensor(1): binvec(268, 0x804020100804020100800000000000000000000000000000000000000000000000)
+InformationStateString(0) = "P0\n...\n.x.\n..."
+InformationStateString(1) = "P1\n...\n...\n..."
+InformationStateTensor(0):
+◯◯◯  ◯◯◯  ◉◉◉
+◯◉◯  ◯◯◯  ◉◯◉
+◯◯◯  ◯◯◯  ◉◉◉
+InformationStateTensor(1):
+◯◯◯  ◯◯◯  ◉◉◉
+◯◯◯  ◯◯◯  ◉◉◉
+◯◯◯  ◯◯◯  ◉◉◉
 ObservationString(0) = "...\n.x.\n..."
 ObservationString(1) = "...\n...\n..."
 ObservationTensor(0): ◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯
@@ -82,23 +94,29 @@ Returns() = [0, -0]
 LegalActions() = [0, 1, 2, 3, 4, 5, 6, 7, 8]
 StringLegalActions() = ["p(0,0)", "o(1,0)", "q(2,0)", "p(0,1)", "o(1,1)", "q(2,1)", "p(0,2)", "o(1,2)", "q(2,2)"]
 
-# Apply action "q(2,2)"
-action: 8
+# Apply action "p(0,2)"
+action: 6
 
 # State 2
 # . . .
 #  . x .
-#   . . q
+#   p . .
 IsTerminal() = False
-History() = [4, 8]
-HistoryString() = "4, 8"
+History() = [4, 6]
+HistoryString() = "4, 6"
 IsChanceNode() = False
 IsSimultaneousNode() = False
 CurrentPlayer() = 0
-InformationStateString(0) = "P0 ...\n.x.\n..."
-InformationStateString(1) = "P1 ...\n...\n..o"
-InformationStateTensor(0): binvec(268, 0x804020100404020100802000000000000000000000000000000000000000000000)
-InformationStateTensor(1): binvec(268, 0x804020100804020101000080400000000000000000000000000000000000000000)
+InformationStateString(0) = "P0\n...\n.x.\n..."
+InformationStateString(1) = "P1\n...\n...\no.."
+InformationStateTensor(0):
+◯◯◯  ◯◯◯  ◉◉◉
+◯◉◯  ◯◯◯  ◉◯◉
+◯◯◯  ◯◯◯  ◉◉◉
+InformationStateTensor(1):
+◯◯◯  ◯◯◯  ◉◉◉
+◯◯◯  ◯◯◯  ◉◉◉
+◯◯◯  ◉◯◯  ◯◉◉
 ObservationString(0) = "...\n.x.\n..."
 ObservationString(1) = "...\n...\n..o"
 ObservationTensor(0): ◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯
@@ -108,16 +126,16 @@ Returns() = [0, -0]
 LegalActions() = [0, 1, 2, 3, 5, 6, 7, 8]
 StringLegalActions() = ["y(0,0)", "y(1,0)", "y(2,0)", "x(0,1)", "x(2,1)", "z(0,2)", "z(1,2)", "z(2,2)"]
 
-# Apply action "z(0,2)"
-action: 6
+# Apply action "z(2,2)"
+action: 8
 
 # State 3
 # . . .
-#  . z .
-#   z . q
+#  . x .
+#   p . z
 IsTerminal() = False
-History() = [4, 8, 6]
-HistoryString() = "4, 8, 6"
+History() = [4, 6, 8]
+HistoryString() = "4, 6, 8"
 IsChanceNode() = False
 IsSimultaneousNode() = False
 CurrentPlayer() = 1
@@ -134,16 +152,16 @@ Returns() = [0, -0]
 LegalActions() = [0, 1, 2, 3, 4, 5, 6, 7]
 StringLegalActions() = ["p(0,0)", "o(1,0)", "q(2,0)", "p(0,1)", "o(1,1)", "q(2,1)", "p(0,2)", "q(1,2)"]
 
-# Apply action "p(0,2)"
-action: 6
+# Apply action "p(1,1)"
+action: 4
 
 # State 4
 # . . .
-#  . z .
-#   z . q
+#  . x .
+#   p . z
 IsTerminal() = False
-History() = [4, 8, 6, 6]
-HistoryString() = "4, 8, 6, 6"
+History() = [4, 6, 8, 4]
+HistoryString() = "4, 6, 8, 4"
 IsChanceNode() = False
 IsSimultaneousNode() = False
 CurrentPlayer() = 1
@@ -165,11 +183,11 @@ action: 5
 
 # State 5
 # . . .
-#  . z q
-#   z . q
+#  . x q
+#   p . z
 IsTerminal() = False
-History() = [4, 8, 6, 6, 5]
-HistoryString() = "4, 8, 6, 6, 5"
+History() = [4, 6, 8, 4, 5]
+HistoryString() = "4, 6, 8, 4, 5"
 IsChanceNode() = False
 IsSimultaneousNode() = False
 CurrentPlayer() = 0
@@ -190,24 +208,24 @@ StringLegalActions() = ["y(0,0)", "X(1,0)", "X(2,0)", "z(0,1)", "z(2,1)", "z(1,2
 action: 0
 
 # State 6
-# Apply action "o(1,0)"
-action: 1
+# Apply action "q(2,0)"
+action: 2
 
 # State 7
-# Apply action "z(2,1)"
-action: 5
+# Apply action "y(1,0)"
+action: 1
 
 # State 8
-# Apply action "X(0,1)"
-action: 3
+# Apply action "O(1,2)"
+action: 7
 
 # State 9
-# y o .
-#  X z q
-#   z . q
+# y y q
+#  . y q
+#   p O z
 IsTerminal() = True
-History() = [4, 8, 6, 6, 5, 0, 1, 5, 3]
-HistoryString() = "4, 8, 6, 6, 5, 0, 1, 5, 3"
+History() = [4, 6, 8, 4, 5, 0, 2, 1, 7]
+HistoryString() = "4, 6, 8, 4, 5, 0, 2, 1, 7"
 IsChanceNode() = False
 IsSimultaneousNode() = False
 CurrentPlayer() = -4

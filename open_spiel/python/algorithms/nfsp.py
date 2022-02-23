@@ -327,7 +327,7 @@ class NFSP(rl_agent.AbstractAgent):
           self._session,
           self._full_checkpoint_name(checkpoint_dir, name),
           latest_filename=self._latest_checkpoint_filename(name))
-      logging.info("Saved to path: %s", path)
+      # logging.info("Saved to path: %s", path)
 
   def has_checkpoint(self, checkpoint_dir):
     for name, _ in self._savers:

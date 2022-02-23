@@ -16,6 +16,9 @@
 from absl import app
 from absl import flags
 from absl import logging
+
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2' 
 import tensorflow.compat.v1 as tf
 
 from open_spiel.python import policy
@@ -25,6 +28,17 @@ from open_spiel.python.algorithms import nfsp
 
 import json
 import numpy as np
+from proglog import default_bar_logger
+import pickle
+
+logger = default_bar_logger('bar')
+
+# Log colors
+OKBLUE = '\033[94m'
+OKGREEN = '\033[92m'
+RED = '\033[91m'
+ENDC = '\033[0m'
+BOLD = '\033[1m'
 
 FLAGS = flags.FLAGS
 
@@ -86,7 +100,7 @@ flags.DEFINE_float("epsilon_end", 0.001,
 flags.DEFINE_string("evaluation_metric", "random_games",
                     "Choose from 'exploitability', 'nash_conv', 'random_games'.")
 flags.DEFINE_bool("use_checkpoints", True, "Save/load neural network weights.")
-flags.DEFINE_string("checkpoint_dir", "tmp/nfsp_test_dh",
+flags.DEFINE_string("checkpoint_dir", "tmp/nfsp_test_3x3_resnet_checkpoints",
                     "Directory to save/load the agent.")
 
 
@@ -123,7 +137,7 @@ class NFSPPolicies(policy.Policy):
 
 
 def main(unused_argv):
-  logging.info("Loading %s", FLAGS.game_name)
+  logger(message=f"{OKBLUE}Loading game {FLAGS.game_name}{ENDC}")
   game = FLAGS.game_name
   num_players = FLAGS.num_players
   
@@ -180,27 +194,39 @@ def main(unused_argv):
 
     sess.run(tf.global_variables_initializer())
 
+    rand_game_results = []
     if FLAGS.use_checkpoints:
       for agent in agents:
         if agent.has_checkpoint(FLAGS.checkpoint_dir):
           agent.restore(FLAGS.checkpoint_dir)
-
-    for ep in range(FLAGS.num_train_episodes):
+      # load the random game results if they exist
+      if tf.gfile.Exists(FLAGS.checkpoint_dir + "/rand_game_results.pkl"):
+        with tf.gfile.Open(FLAGS.checkpoint_dir + "/rand_game_results.pkl",
+                           "rb") as f:
+          data_file = pickle.load(f)
+          data_file["rand_game_results"] = rand_game_results
+    
+    for ep in logger.iter_bar(episodes=range(FLAGS.num_train_episodes)):
       if (ep + 1) % FLAGS.eval_every == 0:
         losses = [agent.loss for agent in agents]
-        logging.info("Losses: %s", losses)
+        # logging.info("Losses: %s", losses)
+        logger(message=f"{RED}{BOLD}Losses: {losses}{ENDC}")
         if FLAGS.evaluation_metric == "exploitability":
           # Avg exploitability is implemented only for 2 players constant-sum
           # games, use nash_conv otherwise.
           expl = exploitability.exploitability(env.game, joint_avg_policy)
-          logging.info("[%s] Exploitability AVG %s", ep + 1, expl)
+          # logging.info("[%s] Exploitability AVG %s", ep + 1, expl)
+          logger(message=f"{OKGREEN}{BOLD}[{ep + 1}] Exploitability AVG {expl}{ENDC}")
         elif FLAGS.evaluation_metric == "nash_conv":
           nash_conv = exploitability.nash_conv(env.game, joint_avg_policy)
-          logging.info("[%s] NashConv %s", ep + 1, nash_conv)
+          # logging.info("[%s] NashConv %s", ep + 1, nash_conv)
+          logger(message=f"{OKGREEN}{BOLD}[{ep + 1}] NashConv {nash_conv}{ENDC}")
         elif FLAGS.evaluation_metric == "random_games":
           rand_eval = run_random_games(env.game, joint_avg_policy,
                                        FLAGS.num_eval_games)
-          logging.info("[%s] Random Games AVG %s", ep + 1, rand_eval)
+          # logging.info("[%s] Random Games AVG %s", ep + 1, rand_eval)
+          logger(message=f"{OKGREEN}{BOLD}[{ep + 1}] Random Games AVG {rand_eval}{ENDC}")
+          rand_game_results.append(rand_eval)
         else:
           raise ValueError(" ".join(
               ("Invalid evaluation metric, choose from",
@@ -208,7 +234,18 @@ def main(unused_argv):
         if FLAGS.use_checkpoints:
           for agent in agents:
             agent.save(FLAGS.checkpoint_dir)
-        logging.info("_____________________________________________")
+          # Save the random game results
+          data = {
+              "rand_game_results": rand_game_results,
+              "num_train_episodes": FLAGS.num_train_episodes,
+              "eval_every": FLAGS.eval_every,
+              "num_eval_games": FLAGS.num_eval_games,
+          }
+          with tf.gfile.Open(FLAGS.checkpoint_dir + "/rand_game_results.pkl",
+                              "wb") as f:
+            pickle.dump(data, f)
+        # logging.info("_____________________________________________")
+        logger(message=f"{OKBLUE}_____________________________________________{ENDC}")
 
       time_step = env.reset()
       while not time_step.last():
@@ -226,14 +263,14 @@ def run_random_games(game, policy, num_games, player=None):
   """Runs random games and returns average score."""
   scores_as_p = [0., 0.]
   games_per_p = num_games if player else num_games // 2
-  if player:
-    for _ in range(games_per_p):
-      scores_as_p[player] += run_random_game(game, policy, player)
-  else:
-    for _ in range(games_per_p):
-      scores_as_p[0] += run_random_game(game, policy, 0)
-      scores_as_p[1] += run_random_game(game, policy, 1)
-  return [score / games_per_p for score in scores_as_p]
+  
+  for _ in logger.iter_bar(Games=range(games_per_p)):
+    if player:
+      scores_as_p[player] += run_random_game(game, policy, player) / games_per_p
+    else:
+      scores_as_p[0] += run_random_game(game, policy, 0) / games_per_p
+      scores_as_p[1] += run_random_game(game, policy, 1) / games_per_p
+  return scores_as_p
 
 
 def run_random_game(game, policy, player):

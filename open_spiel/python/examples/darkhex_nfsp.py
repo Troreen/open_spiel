@@ -30,6 +30,7 @@ import json
 import numpy as np
 from proglog import default_bar_logger
 import pickle
+import pyspiel
 
 logger = default_bar_logger('bar')
 
@@ -107,15 +108,15 @@ flags.DEFINE_string("checkpoint_dir", "tmp/nfsp_test_3x3_resnet_checkpoints",
 class NFSPPolicies(policy.Policy):
   """Joint policy to be evaluated."""
 
-  def __init__(self, env, nfsp_policies, mode):
+  def __init__(self, env, nfsp_policies, mode, num_players):
     game = env.game
-    player_ids = list(range(FLAGS.num_players))
+    player_ids = list(range(num_players))
     super(NFSPPolicies, self).__init__(game, player_ids)
     self._policies = nfsp_policies
     self._mode = mode
     self._obs = {
-        "info_state": [None] * FLAGS.num_players,
-        "legal_actions": [None] * FLAGS.num_players
+        "info_state": [None] * num_players,
+        "legal_actions": [None] * num_players
     }
 
   def action_probabilities(self, state, player_id=None):
@@ -190,7 +191,7 @@ def main(unused_argv):
             input_shape=(3, FLAGS.num_rows, FLAGS.num_cols),
             **kwargs) for idx in range(num_players)
     ]
-    joint_avg_policy = NFSPPolicies(env, agents, nfsp.MODE.average_policy)
+    joint_avg_policy = NFSPPolicies(env, agents, nfsp.MODE.average_policy, FLAGS.num_players)
 
     sess.run(tf.global_variables_initializer())
 
@@ -288,5 +289,130 @@ def run_random_game(game, policy, player):
   return state.returns()[player]
 
 
+def play_with_agent(unused_argv):
+  def_values = {
+    'game_name': 'dark_hex_ir',
+    'num_rows': 4,
+    'num_cols': 3,
+    'num_players': 2,
+    'num_train_episodes': int(2e7),
+    'eval_every': int(2e5),
+    'num_eval_games': int(2e4),
+    'hidden_layers_sizes': [512, 256, 126],
+    'conv_layer_info': [
+      '{"filters": 1024, "kernel_size": 3, "strides": 1, "padding": "same", "max_pool": 2}',
+      '{"filters": 512, "kernel_size": 2, "strides": 1, "padding": "same", "max_pool": 1}',
+      '{"filters": 256, "kernel_size": 2, "strides": 1, "padding": "same", "max_pool": 0}',
+    ],
+    'replay_buffer_capacity': int(2e5),
+    'reservoir_buffer_capacity': int(2e6),
+    'min_buffer_size_to_learn': 1000,
+    'anticipatory_param': 0.1,
+    'batch_size': 128,
+    'learn_every': 64,
+    'rl_learning_rate': 0.01,
+    'sl_learning_rate': 0.01,
+    'optimizer_str': 'sgd',
+    'loss_str': 'mse',
+    'model_type': 'resnet',
+    'dropout_rate': 0.2,
+    'use_batch_norm': 'True',
+    'update_target_network_every': 19200,
+    'discount_factor': 1.0,
+    'epsilon_decay_duration': int(20e6),
+    'epsilon_start': 0.06,
+    'epsilon_end': 0.001,
+    'evaluation_metric': 'random_games',
+    'use_checkpoints': True,
+    'checkpoint_dir': 'tmp/nfsp_test_4x3_resnet_checkpoints',
+  }
+  logger(message=f"{OKBLUE}Loading game {def_values['game_name']}{ENDC}")
+  game = def_values['game_name']
+  num_players = def_values['num_players']
+  
+  env_configs = {"num_rows": def_values['num_rows'], "num_cols": def_values['num_cols']}
+  env = rl_environment.Environment(game, **env_configs)
+  info_state_size = env.observation_spec()["info_state"][0]
+  num_actions = env.action_spec()["num_actions"]
+
+  hidden_layers_sizes = [int(l) for l in def_values['hidden_layers_sizes']]
+  # Parsing conv_layer_info
+  conv_layer_info = []
+  for layer_info in def_values['conv_layer_info']:
+    conv_layer_info.append(json.loads(layer_info))
+  kwargs = {
+      "replay_buffer_capacity": def_values['replay_buffer_capacity'],
+      "reservoir_buffer_capacity": def_values['reservoir_buffer_capacity'],
+      "min_buffer_size_to_learn": def_values['min_buffer_size_to_learn'],
+      "anticipatory_param": def_values['anticipatory_param'],
+      "batch_size": def_values['batch_size'],
+      "learn_every": def_values['learn_every'],
+      "rl_learning_rate": def_values['rl_learning_rate'],
+      "sl_learning_rate": def_values['sl_learning_rate'],
+      "optimizer_str": def_values['optimizer_str'],
+      "loss_str": def_values['loss_str'],
+      "update_target_network_every": def_values['update_target_network_every'],
+      "discount_factor": def_values['discount_factor'],
+      "epsilon_decay_duration": def_values['epsilon_decay_duration'],
+      "epsilon_start": def_values['epsilon_start'],
+      "epsilon_end": def_values['epsilon_end'],
+      "use_batch_norm": def_values['use_batch_norm'],
+      "dropout_rate": def_values['dropout_rate'],
+  }
+
+  with tf.Session() as sess:
+    # pylint: disable=g-complex-comprehension
+    agents = [
+        nfsp.NFSP(
+            sess,
+            idx,
+            info_state_size,
+            num_actions,
+            hidden_layers_sizes,
+            conv_layer_info=conv_layer_info,
+            model_type=def_values['model_type'],
+            input_shape=(3, def_values['num_rows'], def_values['num_cols']),
+            **kwargs) for idx in range(num_players)
+    ]
+    joint_avg_policy = NFSPPolicies(env, agents, nfsp.MODE.average_policy, def_values['num_players'])
+
+    sess.run(tf.global_variables_initializer())
+
+    # Load the checkpoints from the checkpoint directory
+    for agent in agents:
+      agent.restore(def_values['checkpoint_dir'])
+          
+    # Play against the average policy
+    game = pyspiel.load_game('dark_hex_ir(num_rows=4,num_cols=3)')
+    
+    player = 0
+    num_games = 10
+    wins = [0] * num_players
+    for n in range(num_games):
+      state = game.new_initial_state()
+      while not state.is_terminal():
+        if state.current_player() == player:
+          print(state.information_state_string(player))
+          # print(state)
+          action = int(input("Enter action: ").strip())
+        else:
+          policy_dict = joint_avg_policy.action_probabilities(state)
+          # print(f"{policy_dict}")
+          policy = [policy_dict.get(a, 0.0) for a in range(game.num_distinct_actions())]
+          policy = np.array(policy)
+          action = np.random.choice(np.arange(len(policy)), p=policy)
+          # print(f"{state.current_player()}'s policy: {policy}")
+          # get the max probability action]
+          # action = np.argmax(policy)
+        p_ = state.current_player()
+        state.apply_action(action)
+        # print(f"{p_} plays {action}")
+      print(f"{p_} wins!")
+      print(state)
+      wins[p_] += 1
+    print(f"\033[1;32mPlayer wins {wins[0]}\033[0m | \033[1;31m{wins[1]} Opponent wins\033[0m") 
+      
+
 if __name__ == "__main__":
   app.run(main)
+  # play_with_agent(None)

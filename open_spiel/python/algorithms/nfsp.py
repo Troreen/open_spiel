@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """Neural Fictitious Self-Play (NFSP) agent implemented in TensorFlow.
 
 See the paper https://arxiv.org/abs/1603.01121 for more details.
@@ -43,6 +42,7 @@ Transition = collections.namedtuple(
 ILLEGAL_ACTION_LOGITS_PENALTY = -1e9
 
 MODE = enum.Enum("mode", "best_response average_policy")
+supported_model_types = ["mlp", "conv2d", "resnet"]
 
 
 class NFSP(rl_agent.AbstractAgent):
@@ -59,18 +59,22 @@ class NFSP(rl_agent.AbstractAgent):
                hidden_layers_sizes,
                reservoir_buffer_capacity,
                anticipatory_param,
+               input_shape=None,
+               conv_layer_info=None,
                batch_size=128,
                rl_learning_rate=0.01,
                sl_learning_rate=0.01,
                min_buffer_size_to_learn=1000,
                learn_every=64,
                optimizer_str="sgd",
+               model_type="mlp",
                **kwargs):
     """Initialize the `NFSP` agent."""
     self.player_id = player_id
     self._session = session
     self._num_actions = num_actions
     self._layer_sizes = hidden_layers_sizes
+    self._conv_layer_info = conv_layer_info
     self._batch_size = batch_size
     self._learn_every = learn_every
     self._anticipatory_param = anticipatory_param
@@ -91,8 +95,18 @@ class NFSP(rl_agent.AbstractAgent):
         "min_buffer_size_to_learn": min_buffer_size_to_learn,
         "optimizer_str": optimizer_str,
     })
-    self._rl_agent = dqn.DQN(session, player_id, state_representation_size,
-                             num_actions, hidden_layers_sizes, **kwargs)
+
+    self._rl_agent = dqn.DQN(
+        session,
+        player_id,
+        state_representation_size,
+        num_actions,
+        conv_layer_info=conv_layer_info,
+        input_shape=input_shape,
+        model_type=model_type,
+        **kwargs)
+
+    self._input_shape = [None, state_representation_size]
 
     # Keep track of the last training loss achieved in an update step.
     self._last_rl_loss_value = lambda: self._rl_agent.loss
@@ -100,9 +114,7 @@ class NFSP(rl_agent.AbstractAgent):
 
     # Placeholders.
     self._info_state_ph = tf.placeholder(
-        shape=[None, state_representation_size],
-        dtype=tf.float32,
-        name="info_state_ph")
+        shape=self._input_shape, dtype=tf.float32, name="info_state_ph")
 
     self._action_probs_ph = tf.placeholder(
         shape=[None, num_actions], dtype=tf.float32, name="action_probs_ph")
@@ -113,8 +125,27 @@ class NFSP(rl_agent.AbstractAgent):
         name="legal_actions_mask_ph")
 
     # Average policy network.
-    self._avg_network = simple_nets.MLP(state_representation_size,
-                                        self._layer_sizes, num_actions)
+    if model_type == "mlp":
+      self._avg_network = simple_nets.MLP(state_representation_size,
+                                          self._layer_sizes, num_actions)
+    elif model_type == "conv2d":
+      self._avg_network = simple_nets.ConvNet(
+          input_shape=input_shape,
+          conv_layer_info=self._conv_layer_info,
+          dense_layer_sizes=self._layer_sizes,
+          output_size=num_actions,
+          dropout_rate=kwargs["dropout_rate"],
+          use_batch_norm=kwargs["use_batch_norm"])
+    elif model_type == "resnet":
+      self._avg_network = simple_nets.ResNet(
+          input_shape=input_shape,
+          conv_layer_info=self._conv_layer_info,
+          dense_layer_sizes=self._layer_sizes,
+          output_size=num_actions,
+          dropout_rate=kwargs["dropout_rate"],
+          use_batch_norm=kwargs["use_batch_norm"])
+    else:
+      raise ValueError("Unsupported model type: {}".format(model_type))
     self._avg_policy = self._avg_network(self._info_state_ph)
     self._avg_policy_probs = tf.nn.softmax(self._avg_policy)
 

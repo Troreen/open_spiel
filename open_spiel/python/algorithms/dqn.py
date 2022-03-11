@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """DQN agent implemented in TensorFlow."""
 
 from __future__ import absolute_import
@@ -36,6 +35,7 @@ Transition = collections.namedtuple(
     "info_state action reward next_info_state is_final_step legal_actions_mask")
 
 ILLEGAL_ACTION_LOGITS_PENALTY = -1e9
+supported_model_types = ["mlp", "conv2d", "resnet"]
 
 
 class DQN(rl_agent.AbstractAgent):
@@ -49,7 +49,11 @@ class DQN(rl_agent.AbstractAgent):
                player_id,
                state_representation_size,
                num_actions,
+               input_shape=None,
                hidden_layers_sizes=128,
+               conv_layer_info=None,
+               dropout_rate=0.0,
+               use_batch_norm=False,
                replay_buffer_capacity=10000,
                batch_size=128,
                replay_buffer_class=ReplayBuffer,
@@ -61,6 +65,7 @@ class DQN(rl_agent.AbstractAgent):
                epsilon_start=1.0,
                epsilon_end=0.1,
                epsilon_decay_duration=int(1e6),
+               model_type="mlp",
                optimizer_str="sgd",
                loss_str="mse"):
     """Initialize the DQN agent."""
@@ -91,6 +96,7 @@ class DQN(rl_agent.AbstractAgent):
     self._replay_buffer = replay_buffer_class(replay_buffer_capacity)
     self._prev_timestep = None
     self._prev_action = None
+    self._conv_layer_info = conv_layer_info
 
     # Step counter to keep track of learning, eps decay and target network.
     self._step_counter = 0
@@ -98,9 +104,10 @@ class DQN(rl_agent.AbstractAgent):
     # Keep track of the last training loss achieved in an update step.
     self._last_loss_value = None
 
+    self._input_shape = [None, state_representation_size]
     # Create required TensorFlow placeholders to perform the Q-network updates.
     self._info_state_ph = tf.placeholder(
-        shape=[None, state_representation_size],
+        shape=self._input_shape,
         dtype=tf.float32,
         name="info_state_ph")
     self._action_ph = tf.placeholder(
@@ -110,7 +117,7 @@ class DQN(rl_agent.AbstractAgent):
     self._is_final_step_ph = tf.placeholder(
         shape=[None], dtype=tf.float32, name="is_final_step_ph")
     self._next_info_state_ph = tf.placeholder(
-        shape=[None, state_representation_size],
+        shape=self._input_shape,
         dtype=tf.float32,
         name="next_info_state_ph")
     self._legal_actions_mask_ph = tf.placeholder(
@@ -118,12 +125,46 @@ class DQN(rl_agent.AbstractAgent):
         dtype=tf.float32,
         name="legal_actions_mask_ph")
 
-    self._q_network = simple_nets.MLP(state_representation_size,
-                                      self._layer_sizes, num_actions)
+    if model_type == "mlp":
+      self._q_network = simple_nets.MLP(state_representation_size,
+                                        self._layer_sizes, num_actions)
+      self._target_q_network = simple_nets.MLP(state_representation_size,
+                                               self._layer_sizes, num_actions)
+    elif model_type == "conv2d":
+      self._q_network = simple_nets.ConvNet(
+          input_shape=input_shape,
+          conv_layer_info=self._conv_layer_info,
+          dense_layer_sizes=self._layer_sizes,
+          output_size=num_actions,
+          dropout_rate=dropout_rate,
+          use_batch_norm=use_batch_norm)
+      self._target_q_network = simple_nets.ConvNet(
+          input_shape=input_shape,
+          conv_layer_info=self._conv_layer_info,
+          dense_layer_sizes=self._layer_sizes,
+          output_size=num_actions,
+          dropout_rate=dropout_rate,
+          use_batch_norm=use_batch_norm)
+    elif model_type == "resnet":
+      self._q_network = simple_nets.ResNet(
+          input_shape=input_shape,
+          conv_layer_info=self._conv_layer_info,
+          dense_layer_sizes=self._layer_sizes,
+          output_size=num_actions,
+          dropout_rate=dropout_rate,
+          use_batch_norm=use_batch_norm)
+      self._target_q_network = simple_nets.ResNet(
+          input_shape=input_shape,
+          conv_layer_info=self._conv_layer_info,
+          dense_layer_sizes=self._layer_sizes,
+          output_size=num_actions,
+          dropout_rate=dropout_rate,
+          use_batch_norm=use_batch_norm)
+    else:
+      raise ValueError(
+          f"Unknown model type: {model_type}\n",
+          f"Supported model types are: [{supported_model_types}].")
     self._q_values = self._q_network(self._info_state_ph)
-
-    self._target_q_network = simple_nets.MLP(state_representation_size,
-                                             self._layer_sizes, num_actions)
     self._target_q_values = self._target_q_network(self._next_info_state_ph)
 
     # Stop gradient to prevent updates to the target network while learning

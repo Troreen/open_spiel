@@ -335,9 +335,9 @@ int ImperfectRecallDarkHexState::observation_plane(Player player, int r, int c) 
   int plane = -1;
   int cell = static_cast<int>(board(player, r, c));
   if (cell > 0 && cell <= -kMinValueCellState) {
-    plane = 0;
+    plane = 1; // white
   } else if (cell < 0 && cell >= kMinValueCellState) {
-    plane = 1;
+    plane = 0; // black
   } else if (cell == 0) {
     plane = 2;
   } else {

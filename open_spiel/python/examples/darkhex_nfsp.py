@@ -44,21 +44,21 @@ BOLD = '\033[1m'
 FLAGS = flags.FLAGS
 
 flags.DEFINE_string("game_name", "dark_hex_ir", "Name of the game.")
-flags.DEFINE_integer("num_rows", 4, "Number of rows.")
+flags.DEFINE_integer("num_rows", 3, "Number of rows.")
 flags.DEFINE_integer("num_cols", 3, "Number of cols.")
 flags.DEFINE_integer("num_players", 2, "Number of players.")
-flags.DEFINE_integer("num_train_episodes", int(2e7),
+flags.DEFINE_integer("num_train_episodes", int(2e6),
                      "Number of training episodes.")
-flags.DEFINE_integer("eval_every", int(2e5),
+flags.DEFINE_integer("eval_every", int(2e4),
                      "Episode frequency at which the agents are evaluated.")
-flags.DEFINE_integer("num_eval_games", int(2e4),
+flags.DEFINE_integer("num_eval_games", int(6e3),
                      "Number of evaluation games when running random_games evaluator.")
 flags.DEFINE_list("hidden_layers_sizes", [
-    512, 256, 126
+    126
 ], "Number of hidden units to use in each layer of the avg-net and Q-net.")
 flags.DEFINE_list("conv_layer_info", [
-    '{"filters": 1024, "kernel_size": 3, "strides": 1, "padding": "same", "max_pool": 2}',
-    '{"filters": 512, "kernel_size": 2, "strides": 1, "padding": "same", "max_pool": 1}',
+    # '{"filters": 1024, "kernel_size": 3, "strides": 1, "padding": "same", "max_pool": 2}',
+    # '{"filters": 512, "kernel_size": 2, "strides": 1, "padding": "same", "max_pool": 1}',
     '{"filters": 256, "kernel_size": 2, "strides": 1, "padding": "same", "max_pool": 0}',
 ], "Convolutional layers information. Each layer is a dictionary with the following keys: " +
    "filters (int), kernel_size (int), strides (int), padding (str), max_pool (int). " +
@@ -101,7 +101,7 @@ flags.DEFINE_float("epsilon_end", 0.001,
 flags.DEFINE_string("evaluation_metric", "random_games",
                     "Choose from 'exploitability', 'nash_conv', 'random_games'.")
 flags.DEFINE_bool("use_checkpoints", True, "Save/load neural network weights.")
-flags.DEFINE_string("checkpoint_dir", "tmp/nfsp_test_3x3_resnet_checkpoints",
+flags.DEFINE_string("checkpoint_dir", "tmp/nfsp_test_3x3_sresnet_ir_checkpoints",
                     "Directory to save/load the agent.")
 
 
@@ -187,6 +187,7 @@ def main(unused_argv):
             num_actions,
             hidden_layers_sizes,
             conv_layer_info=conv_layer_info,
+            # model_type='mlp',
             model_type=FLAGS.model_type,
             input_shape=(3, FLAGS.num_rows, FLAGS.num_cols),
             **kwargs) for idx in range(num_players)
@@ -195,57 +196,57 @@ def main(unused_argv):
 
     sess.run(tf.global_variables_initializer())
 
-    rand_game_results = []
+    game_res = []
+    rand_res = []
     if FLAGS.use_checkpoints:
       for agent in agents:
         if agent.has_checkpoint(FLAGS.checkpoint_dir):
           agent.restore(FLAGS.checkpoint_dir)
       # load the random game results if they exist
-      if tf.gfile.Exists(FLAGS.checkpoint_dir + "/rand_game_results.pkl"):
-        with tf.gfile.Open(FLAGS.checkpoint_dir + "/rand_game_results.pkl",
+      if tf.gfile.Exists(FLAGS.checkpoint_dir + "/game_res.pkl"):
+        with tf.gfile.Open(FLAGS.checkpoint_dir + "/game_res.pkl",
                            "rb") as f:
           data_file = pickle.load(f)
-          data_file["rand_game_results"] = rand_game_results
+          data_file["game_res"] = game_res
     
     for ep in logger.iter_bar(episodes=range(FLAGS.num_train_episodes)):
       if (ep + 1) % FLAGS.eval_every == 0:
         losses = [agent.loss for agent in agents]
-        # logging.info("Losses: %s", losses)
         logger(message=f"{RED}{BOLD}Losses: {losses}{ENDC}")
         if FLAGS.evaluation_metric == "exploitability":
-          # Avg exploitability is implemented only for 2 players constant-sum
-          # games, use nash_conv otherwise.
           expl = exploitability.exploitability(env.game, joint_avg_policy)
-          # logging.info("[%s] Exploitability AVG %s", ep + 1, expl)
           logger(message=f"{OKGREEN}{BOLD}[{ep + 1}] Exploitability AVG {expl}{ENDC}")
+          game_res.append(expl)
         elif FLAGS.evaluation_metric == "nash_conv":
           nash_conv = exploitability.nash_conv(env.game, joint_avg_policy)
-          # logging.info("[%s] NashConv %s", ep + 1, nash_conv)
           logger(message=f"{OKGREEN}{BOLD}[{ep + 1}] NashConv {nash_conv}{ENDC}")
-        elif FLAGS.evaluation_metric == "random_games":
-          rand_eval = run_random_games(env.game, joint_avg_policy,
+          game_res.append(nash_conv)
+        # elif FLAGS.evaluation_metric == "random_games":
+        #   rand_eval = run_random_games(env.game, joint_avg_policy,
+        #                                FLAGS.num_eval_games)
+        #   logger(message=f"{OKGREEN}{BOLD}[{ep + 1}] Random Games AVG {rand_eval}{ENDC}")
+        #   game_res.append(rand_eval)
+        rand_eval = run_random_games(env.game, joint_avg_policy,
                                        FLAGS.num_eval_games)
-          # logging.info("[%s] Random Games AVG %s", ep + 1, rand_eval)
-          logger(message=f"{OKGREEN}{BOLD}[{ep + 1}] Random Games AVG {rand_eval}{ENDC}")
-          rand_game_results.append(rand_eval)
-        else:
-          raise ValueError(" ".join(
-              ("Invalid evaluation metric, choose from",
-               "'exploitability', 'nash_conv', 'random_games'.")))
+        rand_res.append(rand_eval)
+        # else:
+        #   raise ValueError(" ".join(
+        #       ("Invalid evaluation metric, choose from",
+        #        "'exploitability', 'nash_conv', 'random_games'.")))
         if FLAGS.use_checkpoints:
           for agent in agents:
             agent.save(FLAGS.checkpoint_dir)
           # Save the random game results
           data = {
-              "rand_game_results": rand_game_results,
+              "game_res": game_res,
+              "rand_res": rand_res,
               "num_train_episodes": FLAGS.num_train_episodes,
               "eval_every": FLAGS.eval_every,
               "num_eval_games": FLAGS.num_eval_games,
           }
-          with tf.gfile.Open(FLAGS.checkpoint_dir + "/rand_game_results.pkl",
+          with tf.gfile.Open(FLAGS.checkpoint_dir + "/game_res.pkl",
                               "wb") as f:
             pickle.dump(data, f)
-        # logging.info("_____________________________________________")
         logger(message=f"{OKBLUE}_____________________________________________{ENDC}")
 
       time_step = env.reset()

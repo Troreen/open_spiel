@@ -2,20 +2,8 @@ import numpy as np
 import pickle
 import matplotlib.pyplot as plt
 
-def plot_results():
-    """Plot results from the NFSP dark hex experiment."""
-    # load the data
-    with open('tmp/nfsp_test_3x3_resnet_checkpoints/rand_game_results.pkl', 'rb') as f:
-        data = pickle.load(f)
-        
-    # data = {
-    #           "rand_game_results": rand_game_results,
-    #           "num_train_episodes": FLAGS.num_train_episodes,
-    #           "eval_every": FLAGS.eval_every,
-    #           "num_eval_games": FLAGS.num_eval_games,
-    #       }
-        
-    results = data["rand_game_results"]
+def plot_results_random(data):
+    results = data["rand_res"]
     eval_every = data["eval_every"]
     
     p0_results = [res[0] for res in results]
@@ -36,6 +24,19 @@ def plot_results():
     
     plt.savefig('tmp/nfsp_dark_hex.png')
     
+def plot_results_nashconv(data):
+    results = data["game_res"]
+    eval_every = data["eval_every"]
+    
+    plt.title('NFSP 2x2 Dark Hex')
+    plt.plot(results)
+    plt.xlabel(f'Iteration (x{eval_every})')
+    plt.ylabel('NashConv')
+    plt.savefig('tmp/nfsp_dark_hex_nc.png')
+    
     
 if __name__ == '__main__':
-    plot_results()
+    with open('tmp/nfsp_test_2x2_mlp_ir_checkpoints/game_res.pkl', 'rb') as f:
+        data = pickle.load(f)
+    plot_results_nashconv(data)
+    plot_results_random(data)

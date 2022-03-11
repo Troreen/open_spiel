@@ -137,13 +137,13 @@ class NFSP(rl_agent.AbstractAgent):
           dropout_rate=kwargs["dropout_rate"],
           use_batch_norm=kwargs["use_batch_norm"])
     elif model_type == "resnet":
-      self._avg_network = simple_nets.ResNet(
+      self._avg_network = simple_nets.simpleResNet(
           input_shape=input_shape,
-          conv_layer_info=self._conv_layer_info,
-          dense_layer_sizes=self._layer_sizes,
-          output_size=num_actions,
-          dropout_rate=kwargs["dropout_rate"],
-          use_batch_norm=kwargs["use_batch_norm"])
+          # conv_layer_info=self._conv_layer_info,
+          # dense_layer_sizes=self._layer_sizes,
+          output_size=num_actions,)
+          # dropout_rate=kwargs["dropout_rate"],
+          # use_batch_norm=kwargs["use_batch_norm"])
     else:
       raise ValueError("Unsupported model type: {}".format(model_type))
     self._avg_policy = self._avg_network(self._info_state_ph)

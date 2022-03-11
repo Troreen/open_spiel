@@ -421,3 +421,52 @@ class ResNet(tf.Module):
     for layer in self._layers:
       x = layer(x)
     return x
+  
+  
+class simpleResNet(tf.Module):
+  """A simple one hidden layer resnet module"""
+  
+  def __init__(self, input_shape, output_size):
+    super(simpleResNet, self).__init__()
+    self._shape = input_shape
+    self._layers = []
+    with self.name_scope:
+      # Input Layer
+      self._layers.append(
+          tf.keras.layers.Conv2D(
+              filters=128,
+              kernel_size=3,
+              strides=1,
+              padding="SAME",
+              activation=tf.nn.relu,
+              input_shape=input_shape,
+              name="input_layer"))
+      self._layers.append(
+          tf.keras.layers.Conv2D(
+              filters=256,
+              kernel_size=3,
+              strides=1,
+              padding="SAME",
+              activation=tf.nn.relu,
+              input_shape=input_shape,
+              name="hidden_layer"))
+      self._layers.append(tf.keras.layers.MaxPool2D(pool_size=2, name="max_pool_input"))
+      self._layers.append(tf.keras.layers.Flatten(name="flatten"))
+      self._layers.append(
+          tf.keras.layers.Dense(
+              units=256,
+              activation=tf.nn.relu,
+              name="hidden_dense"))
+      # Output layer
+      self._layers.append(
+          tf.keras.layers.Dense(
+              units=output_size,
+              activation=None,
+              name="output_layer"))
+      
+  @tf.Module.with_name_scope
+  def __call__(self, x):
+    x = tf.reshape(x, [-1, *self._shape])
+    for layer in self._layers:
+      x = layer(x)
+    return x

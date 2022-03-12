@@ -423,6 +423,27 @@ std::pair<bool, Player> ImperfectRecallDarkHexState::IsEarlyTerminal() const {
   }
 }
 
+bool ImperfectRecallDarkHexState::IsTerminal() const {
+  if (use_early_terminal_) {
+    return IsEarlyTerminal().first;
+  }
+  return DarkHexState::IsTerminal();
+}
+
+std::vector<double> ImperfectRecallDarkHexState::Returns() const { 
+  if (use_early_terminal_) {
+    double winner = IsEarlyTerminal().second;
+    if (winner == kInvalidPlayer) {
+      return {0, 0};
+    } else if (winner == 0) {
+      return {1, -1};
+    } else {
+      return {-1, 1};
+    }
+  }
+  return DarkHexState::Returns(); 
+}
+
 std::vector<int> ImperfectRecallDarkHexGame::ObservationTensorShape() const {
   return {3, num_rows(), num_cols()}; // 3 planes: black, white, empty
 }

@@ -202,6 +202,8 @@ class ImperfectRecallDarkHexState : public DarkHexState {
   hex::CellState board(Player player, int row, int col) const;
   int observation_plane(Player player, int r, int c) const;
   std::pair<bool, Player> IsEarlyTerminal() const;
+  std::vector<double> Returns() const override;
+  bool IsTerminal() const override;
   
  private:
   const bool use_early_terminal_;

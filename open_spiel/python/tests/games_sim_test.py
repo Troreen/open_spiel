@@ -312,6 +312,33 @@ class GamesSimTest(parameterized.TestCase):
         action = np.random.choice(legal_actions)
         state.apply_action(action)
 
+  def test_dark_hex_early_terminal(self):
+    game = pyspiel.load_game(
+      "dark_hex_ir(board_size=2,path=open_spiel/data/dark_hex_early_terminals/dhex2x2.csv)")
+    state = game.new_initial_state()
+
+    state.apply_action(0)
+    is_terminal = state.is_terminal()
+    is_early_terminal = state.is_early_terminal()
+    self.assertEqual(is_terminal, False)
+    self.assertEqual(is_early_terminal, (False, -3))
+    
+    state.apply_action(1)
+    is_terminal = state.is_terminal()
+    is_early_terminal = state.is_early_terminal()
+    self.assertEqual(is_terminal, False)
+    self.assertEqual(is_early_terminal, (True, 0))
+
+  def test_dark_hex_num_hidden_stones():
+    game = pyspiel.load_game("dark_hex_ir(board_size=2)")
+    state = game.new_initial_state()
+    state.apply_action(0)
+    state.apply_action(1)
+    self.assertEqual(state.num_hidden_stones(0), 1)
+    self.assertEqual(state.num_hidden_stones(1), 1)
+    state.apply_action(1)
+    self.assertEqual(state.num_hidden_stones(0), 0)
+
   def test_leduc_get_and_set_private_cards(self):
     game = pyspiel.load_game("leduc_poker")
     state = game.new_initial_state()

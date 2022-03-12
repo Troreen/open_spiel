@@ -114,6 +114,10 @@ class DarkHexState : public State {
   int num_rows() const { return num_rows_; }
   int num_cols() const { return num_cols_; }
 
+  int NumHiddenStones(Player player) const {
+    return num_hidden_stones_[player];
+  }
+
  protected:
   void DoApplyAction(Action move) override;
   std::string ViewToString(Player player) const;
@@ -132,6 +136,8 @@ class DarkHexState : public State {
   const int num_cells_;
   const int bits_per_action_;
   const int longest_sequence_;
+
+  std::vector<int> num_hidden_stones_;
 
   // Change this to _history on base class
   std::vector<std::pair<int, Action>> action_sequence_;
@@ -176,12 +182,15 @@ class ImperfectRecallDarkHexState : public DarkHexState {
  public:
   ImperfectRecallDarkHexState(std::shared_ptr<const Game> game, int num_rows_,
                               int num_cols_, GameVersion game_version,
-                              ObservationType obs_type)
-      : DarkHexState(game, num_rows_, num_cols_, game_version, obs_type) {}
+                              ObservationType obs_type, bool use_early_terminal_path)
+      : DarkHexState(game, num_rows_, num_cols_, game_version, obs_type),
+        use_early_terminal_(use_early_terminal_path),
+        early_wins_(GetEarlyTerminals()) {}
+        
   std::string InformationStateString(Player player) const override {
     SPIEL_CHECK_GE(player, 0);
     SPIEL_CHECK_LT(player, num_players_);
-    return absl::StrCat("P", player, "\n", ViewToString(player));
+    return absl::StrCat("P", player, " ", ViewToString(player));
   }
   void InformationStateTensor(Player player,
                               absl::Span<float> values) const override;
@@ -192,6 +201,13 @@ class ImperfectRecallDarkHexState : public DarkHexState {
   }
   hex::CellState board(Player player, int row, int col) const;
   int observation_plane(Player player, int r, int c) const;
+  std::pair<bool, Player> IsEarlyTerminal() const;
+  
+ private:
+  const bool use_early_terminal_;
+  const std::map<std::string, Player> early_wins_;
+  std::map<std::string, Player> GetEarlyTerminals() const;
+
 };
 
 class ImperfectRecallDarkHexGame : public DarkHexGame {
@@ -200,10 +216,12 @@ class ImperfectRecallDarkHexGame : public DarkHexGame {
   std::unique_ptr<State> NewInitialState() const override {
     return std::unique_ptr<State>(new ImperfectRecallDarkHexState(
         shared_from_this(), num_cols(), num_rows(), game_version(),
-        obs_type()));
+        obs_type(), use_early_terminal_));
   }
   std::vector<int> InformationStateTensorShape() const override;
   std::vector<int> ObservationTensorShape() const override;
+ private:
+  const bool use_early_terminal_;
 };
 
 inline std::ostream& operator<<(std::ostream& stream,

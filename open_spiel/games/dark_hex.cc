@@ -17,11 +17,14 @@
 #include <memory>
 #include <utility>
 #include <vector>
+#include <iostream>
+#include <fstream>
 
 #include "open_spiel/abseil-cpp/absl/strings/str_cat.h"
 #include "open_spiel/games/hex.h"
 #include "open_spiel/spiel_utils.h"
 #include "open_spiel/utils/tensor_view.h"
+
 
 namespace open_spiel {
 namespace dark_hex {
@@ -75,7 +78,8 @@ const GameType kImperfectRecallGameType{
      {"gameversion", GameParameter(kDefaultGameVersion)},
      {"board_size", GameParameter(kDefaultBoardSize)},
      {"num_cols", GameParameter(kDefaultNumCols)},
-     {"num_rows", GameParameter(kDefaultNumRows)}}};
+     {"num_rows", GameParameter(kDefaultNumRows)},
+     {"use_early_terminal", GameParameter(false)}}};
 
 std::shared_ptr<const Game> Factory(const GameParameters& params) {
   return std::shared_ptr<const Game>(new DarkHexGame(params, kGameType));
@@ -93,7 +97,9 @@ REGISTER_SPIEL_GAME(kImperfectRecallGameType, ImperfectRecallFactory);
 
 ImperfectRecallDarkHexGame::ImperfectRecallDarkHexGame(
     const GameParameters& params)
-    : DarkHexGame(params, kImperfectRecallGameType) {}
+    : DarkHexGame(params, kImperfectRecallGameType),
+      use_early_terminal_(
+          ParameterValue<bool>("use_early_terminal")) {}
 
 DarkHexState::DarkHexState(std::shared_ptr<const Game> game, int num_cols,
                            int num_rows, GameVersion game_version,
@@ -109,23 +115,19 @@ DarkHexState::DarkHexState(std::shared_ptr<const Game> game, int num_cols,
       longest_sequence_(num_cells_ * 2 - 1) {
   black_view_.resize(num_cols * num_rows, CellState::kEmpty);
   white_view_.resize(num_cols * num_rows, CellState::kEmpty);
+  num_hidden_stones_ = {0, 0}; // Black, White
 }
 
 void DarkHexState::DoApplyAction(Action move) {
   Player cur_player = CurrentPlayer();  // current player
   auto& cur_view = (cur_player == 0 ? black_view_ : white_view_);
 
-  // Either occupied or not
-  if (game_version_ == GameVersion::kClassicalDarkHex) {
-    if (state_.BoardAt(move) == CellState::kEmpty) {
-      state_.ApplyAction(move);
-    }
+  if (state_.BoardAt(move) == CellState::kEmpty) {
+    num_hidden_stones_[1 - cur_player]++;
+    state_.ApplyAction(move);
   } else {
-    SPIEL_CHECK_EQ(game_version_, GameVersion::kAbruptDarkHex);
-    if (state_.BoardAt(move) == CellState::kEmpty) {
-      state_.ApplyAction(move);
-    } else {
-      // switch the current player
+    num_hidden_stones_[cur_player]--;
+    if (game_version_ == GameVersion::kAbruptDarkHex) {
       state_.ChangePlayer();
     }
   }
@@ -173,7 +175,7 @@ std::string DarkHexState::ViewToString(Player player) const {
       absl::StrAppend(&str, StateToString(cur_view[r * num_cols_ + c]));
     }
     if (r < (num_rows_ - 1)) {
-      absl::StrAppend(&str, "\n");
+      absl::StrAppend(&str, "");
     }
   }
   return str;
@@ -377,6 +379,48 @@ void ImperfectRecallDarkHexState::ObservationTensor(Player player,
                                      absl::Span<float> values) const {
   // Same as the InformationStateTensor.
   InformationStateTensor(player, values);
+}
+
+std::map<std::string, Player> ImperfectRecallDarkHexState::GetEarlyTerminals() const {
+    std::map<std::string, Player> early_wins;
+    std::string line;
+    if (!use_early_terminal_) {
+        return early_wins;
+    }
+    // path is open_spiel/data/dark_hex_early_terminals/<num_rows>x<num_cols>.csv
+    std::string path = "open_spiel/data/dark_hex_early_terminals/" + std::to_string(num_rows()) 
+                       + "x" + std::to_string(num_cols()) + ".csv";
+    std::ifstream myfile(path);
+    if (myfile.is_open()) {
+        while (getline(myfile, line)) {
+            // lines should be in format:
+            // <information_state>,<state_value>
+            // where <state_value> is either 0 or 1 for Players 0 or 1
+            std::vector<std::string> tokens = absl::StrSplit(line, ',');
+            SPIEL_CHECK_EQ(tokens.size(), 2);
+            early_wins[tokens[0]] = std::stoi(tokens[1]);
+        }
+        myfile.close();
+    } else {
+        SpielFatalError(absl::StrCat("Could not open file: ", path));
+    }
+    return early_wins;
+}
+
+std::pair<bool, Player> ImperfectRecallDarkHexState::IsEarlyTerminal() const {
+  // Check the csv data for the given board size (if exists) and search for
+  // the given board state. If found, return true. Otherwise, return false.
+  SPIEL_CHECK_TRUE(use_early_terminal_);
+  std::string board_state_p0 = InformationStateString(0);
+  std::string board_state_p1 = InformationStateString(1);
+  
+  if (early_wins_.find(board_state_p0) != early_wins_.end()) {
+    return std::make_pair(true, early_wins_.at(board_state_p0));
+  } else if (early_wins_.find(board_state_p1) != early_wins_.end()) {
+    return std::make_pair(true, early_wins_.at(board_state_p1));
+  } else {
+    return std::make_pair(false, kInvalidPlayer);
+  }
 }
 
 std::vector<int> ImperfectRecallDarkHexGame::ObservationTensorShape() const {

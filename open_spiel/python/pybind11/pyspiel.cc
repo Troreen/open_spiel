@@ -33,6 +33,7 @@
 #include "open_spiel/python/pybind11/games_backgammon.h"
 #include "open_spiel/python/pybind11/games_bridge.h"
 #include "open_spiel/python/pybind11/games_chess.h"
+#include "open_spiel/python/pybind11/games_dark_hex.h"
 #include "open_spiel/python/pybind11/games_kuhn_poker.h"
 #include "open_spiel/python/pybind11/games_leduc_poker.h"
 #include "open_spiel/python/pybind11/games_negotiation.h"
@@ -614,6 +615,7 @@ PYBIND11_MODULE(pyspiel, m) {
   init_pyspiel_games_backgammon(m);         // Backgammon game.
   init_pyspiel_games_bridge(m);  // Game-specific functions for bridge.
   init_pyspiel_games_chess(m);   // Chess game.
+  init_pyspiel_games_dark_hex(m);   // Dark Hex game.
   init_pyspiel_games_kuhn_poker(m);   // Kuhn Poker game.
   init_pyspiel_games_leduc_poker(m);  // Leduc poker game.
   init_pyspiel_games_negotiation(m);  // Negotiation game.

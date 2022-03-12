@@ -146,20 +146,20 @@ class DQN(rl_agent.AbstractAgent):
           dropout_rate=dropout_rate,
           use_batch_norm=use_batch_norm)
     elif model_type == "resnet":
-      self._q_network = simple_nets.ResNet(
+      self._q_network = simple_nets.simpleResNet(
           input_shape=input_shape,
-          conv_layer_info=self._conv_layer_info,
-          dense_layer_sizes=self._layer_sizes,
-          output_size=num_actions,
-          dropout_rate=dropout_rate,
-          use_batch_norm=use_batch_norm)
-      self._target_q_network = simple_nets.ResNet(
+          # conv_layer_info=self._conv_layer_info,
+          # dense_layer_sizes=self._layer_sizes,
+          output_size=num_actions,)
+          # dropout_rate=dropout_rate,
+          # use_batch_norm=use_batch_norm)
+      self._target_q_network = simple_nets.simpleResNet(
           input_shape=input_shape,
-          conv_layer_info=self._conv_layer_info,
-          dense_layer_sizes=self._layer_sizes,
-          output_size=num_actions,
-          dropout_rate=dropout_rate,
-          use_batch_norm=use_batch_norm)
+          # conv_layer_info=self._conv_layer_info,
+          # dense_layer_sizes=self._layer_sizes,
+          output_size=num_actions,)
+          # dropout_rate=dropout_rate,
+          # use_batch_norm=use_batch_norm)
     else:
       raise ValueError(
           f"Unknown model type: {model_type}\n",

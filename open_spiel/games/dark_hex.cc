@@ -99,7 +99,11 @@ ImperfectRecallDarkHexGame::ImperfectRecallDarkHexGame(
     const GameParameters& params)
     : DarkHexGame(params, kImperfectRecallGameType),
       use_early_terminal_(
-          ParameterValue<bool>("use_early_terminal")) {}
+          ParameterValue<bool>("use_early_terminal")) {
+    if (use_early_terminal_) {
+      early_wins_ = GetEarlyTerminals();
+    }
+  }
 
 DarkHexState::DarkHexState(std::shared_ptr<const Game> game, int num_cols,
                            int num_rows, GameVersion game_version,
@@ -381,15 +385,15 @@ void ImperfectRecallDarkHexState::ObservationTensor(Player player,
   InformationStateTensor(player, values);
 }
 
-std::map<std::string, Player> ImperfectRecallDarkHexState::GetEarlyTerminals() const {
-    std::map<std::string, Player> early_wins;
-    std::string line;
+std::unordered_map<std::string, Player> ImperfectRecallDarkHexGame::GetEarlyTerminals() const {
+    std::unordered_map<std::string, Player> early_wins;
     if (!use_early_terminal_) {
         return early_wins;
     }
     // path is open_spiel/data/dark_hex_early_terminals/<num_rows>x<num_cols>.csv
     std::string path = "open_spiel/data/dark_hex_early_terminals/" + std::to_string(num_rows()) 
                        + "x" + std::to_string(num_cols()) + ".csv";
+    std::string line;
     std::ifstream myfile(path);
     if (myfile.is_open()) {
         while (getline(myfile, line)) {
@@ -411,20 +415,20 @@ std::pair<bool, Player> ImperfectRecallDarkHexState::IsEarlyTerminal() const {
   // Check the csv data for the given board size (if exists) and search for
   // the given board state. If found, return true. Otherwise, return false.
   SPIEL_CHECK_TRUE(use_early_terminal_);
-  std::string board_state_p0 = InformationStateString(0);
-  std::string board_state_p1 = InformationStateString(1);
-  
-  if (early_wins_.find(board_state_p0) != early_wins_.end()) {
-    return std::make_pair(true, early_wins_.at(board_state_p0));
-  } else if (early_wins_.find(board_state_p1) != early_wins_.end()) {
-    return std::make_pair(true, early_wins_.at(board_state_p1));
-  } else {
-    return std::make_pair(false, kInvalidPlayer);
+  std::string board_state = InformationStateString(1 - CurrentPlayer());
+
+  if (early_wins_.find(board_state) != early_wins_.end()) {
+    return std::make_pair(true, early_wins_.at(board_state));
   }
+  return std::make_pair(false, kInvalidPlayer);
 }
 
 bool ImperfectRecallDarkHexState::IsTerminal() const {
   if (use_early_terminal_) {
+    bool terminal = DarkHexState::IsTerminal();
+    if (terminal) {
+      return true;
+    }
     return IsEarlyTerminal().first;
   }
   return DarkHexState::IsTerminal();

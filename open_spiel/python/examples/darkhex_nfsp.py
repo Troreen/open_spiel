@@ -44,7 +44,7 @@ BOLD = '\033[1m'
 FLAGS = flags.FLAGS
 
 flags.DEFINE_string("game_name", "dark_hex_ir", "Name of the game.")
-flags.DEFINE_integer("num_rows", 3, "Number of rows.")
+flags.DEFINE_integer("num_rows", 4, "Number of rows.")
 flags.DEFINE_integer("num_cols", 3, "Number of cols.")
 flags.DEFINE_integer("num_players", 2, "Number of players.")
 flags.DEFINE_integer("num_train_episodes", int(2e6),
@@ -142,7 +142,8 @@ def main(unused_argv):
   game = FLAGS.game_name
   num_players = FLAGS.num_players
   
-  env_configs = {"num_rows": FLAGS.num_rows, "num_cols": FLAGS.num_cols}
+  env_configs = {"num_rows": FLAGS.num_rows, "num_cols": FLAGS.num_cols,
+                 "use_early_terminal": True}
   env = rl_environment.Environment(game, **env_configs)
   info_state_size = env.observation_spec()["info_state"][0]
   num_actions = env.action_spec()["num_actions"]
@@ -221,18 +222,15 @@ def main(unused_argv):
           nash_conv = exploitability.nash_conv(env.game, joint_avg_policy)
           logger(message=f"{OKGREEN}{BOLD}[{ep + 1}] NashConv {nash_conv}{ENDC}")
           game_res.append(nash_conv)
-        # elif FLAGS.evaluation_metric == "random_games":
-        #   rand_eval = run_random_games(env.game, joint_avg_policy,
-        #                                FLAGS.num_eval_games)
-        #   logger(message=f"{OKGREEN}{BOLD}[{ep + 1}] Random Games AVG {rand_eval}{ENDC}")
-        #   game_res.append(rand_eval)
-        rand_eval = run_random_games(env.game, joint_avg_policy,
+        elif FLAGS.evaluation_metric == "random_games":
+          rand_eval = run_random_games(env.game, joint_avg_policy,
                                        FLAGS.num_eval_games)
-        rand_res.append(rand_eval)
-        # else:
-        #   raise ValueError(" ".join(
-        #       ("Invalid evaluation metric, choose from",
-        #        "'exploitability', 'nash_conv', 'random_games'.")))
+          logger(message=f"{OKGREEN}{BOLD}[{ep + 1}] Random Games AVG {rand_eval}{ENDC}")
+          game_res.append(rand_eval)
+        else:
+          raise ValueError(" ".join(
+              ("Invalid evaluation metric, choose from",
+               "'exploitability', 'nash_conv', 'random_games'.")))
         if FLAGS.use_checkpoints:
           for agent in agents:
             agent.save(FLAGS.checkpoint_dir)

@@ -385,10 +385,9 @@ void ImperfectRecallDarkHexState::ObservationTensor(Player player,
   InformationStateTensor(player, values);
 }
 
-std::unordered_map<std::string, Player> ImperfectRecallDarkHexGame::GetEarlyTerminals() const {
-    std::unordered_map<std::string, Player> early_wins;
+std::unordered_map<std::string, Player> ImperfectRecallDarkHexGame::GetEarlyTerminals() {
     if (!use_early_terminal_) {
-        return early_wins;
+        return early_wins_;
     }
     // path is open_spiel/data/dark_hex_early_terminals/<num_rows>x<num_cols>.csv
     std::string path = "open_spiel/data/dark_hex_early_terminals/" + std::to_string(num_rows()) 
@@ -402,25 +401,36 @@ std::unordered_map<std::string, Player> ImperfectRecallDarkHexGame::GetEarlyTerm
             // where <state_value> is either 0 or 1 for Players 0 or 1
             std::vector<std::string> tokens = absl::StrSplit(line, ',');
             SPIEL_CHECK_EQ(tokens.size(), 2);
-            early_wins[tokens[0]] = std::stoi(tokens[1]);
+            early_wins_[tokens[0]] = std::stoi(tokens[1]);
         }
         myfile.close();
     } else {
         SpielFatalError(absl::StrCat("Could not open file: ", path));
     }
-    return early_wins;
+    return early_wins_;
+}
+
+const std::unordered_map<std::string, Player>* ImperfectRecallDarkHexState::GetEarlyWins() const {
+  return static_cast<const ImperfectRecallDarkHexGame*>(GetGame().get())->early_wins();
 }
 
 std::pair<bool, Player> ImperfectRecallDarkHexState::IsEarlyTerminal() const {
   // Check the csv data for the given board size (if exists) and search for
   // the given board state. If found, return true. Otherwise, return false.
   SPIEL_CHECK_TRUE(use_early_terminal_);
-  std::string board_state = InformationStateString(1 - CurrentPlayer());
-
-  if (early_wins_.find(board_state) != early_wins_.end()) {
-    return std::make_pair(true, early_wins_.at(board_state));
+  Player player = CurrentPlayer();
+  if (player != 0 && player != 1) {
+    return {false, kInvalidPlayer};
   }
-  return std::make_pair(false, kInvalidPlayer);
+  std::string board_state = InformationStateString(1 - player);
+  const std::unordered_map<std::string, Player>* early_wins = GetEarlyWins();
+
+  auto it = early_wins->find(board_state);
+  if (it != early_wins->end()) {
+    return std::make_pair(true, it->second);
+  } else {
+    return std::make_pair(false, kInvalidPlayer);
+  }
 }
 
 bool ImperfectRecallDarkHexState::IsTerminal() const {
@@ -450,6 +460,10 @@ std::vector<double> ImperfectRecallDarkHexState::Returns() const {
 
 std::vector<int> ImperfectRecallDarkHexGame::ObservationTensorShape() const {
   return {3, num_rows(), num_cols()}; // 3 planes: black, white, empty
+}
+
+const std::unordered_map<std::string, Player>* ImperfectRecallDarkHexGame::early_wins() const {
+  return &early_wins_;
 }
 
 }  // namespace dark_hex

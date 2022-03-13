@@ -182,11 +182,9 @@ class ImperfectRecallDarkHexState : public DarkHexState {
  public:
   ImperfectRecallDarkHexState(std::shared_ptr<const Game> game, int num_rows_,
                               int num_cols_, GameVersion game_version,
-                              ObservationType obs_type, bool use_early_terminal,
-                              std::unordered_map<std::string, int> early_wins_)
+                              ObservationType obs_type, bool use_early_terminal)
       : DarkHexState(game, num_rows_, num_cols_, game_version, obs_type),
-        use_early_terminal_(use_early_terminal),
-        early_wins_(early_wins_) {}
+        use_early_terminal_(use_early_terminal) {}
         
   std::string InformationStateString(Player player) const override {
     SPIEL_CHECK_GE(player, 0);
@@ -205,10 +203,10 @@ class ImperfectRecallDarkHexState : public DarkHexState {
   std::pair<bool, Player> IsEarlyTerminal() const;
   std::vector<double> Returns() const override;
   bool IsTerminal() const override;
+  const std::unordered_map<std::string, Player>* GetEarlyWins() const;
   
  private:
   const bool use_early_terminal_;
-  const std::unordered_map<std::string, Player> early_wins_;
 
 };
 
@@ -218,14 +216,16 @@ class ImperfectRecallDarkHexGame : public DarkHexGame {
   std::unique_ptr<State> NewInitialState() const override {
     return std::unique_ptr<State>(new ImperfectRecallDarkHexState(
         shared_from_this(), num_cols(), num_rows(), game_version(),
-        obs_type(), use_early_terminal_, early_wins_));
+        obs_type(), use_early_terminal_));
   }
   std::vector<int> InformationStateTensorShape() const override;
   std::vector<int> ObservationTensorShape() const override;
+  const std::unordered_map<std::string, Player>* early_wins() const;
+
  private:
   const bool use_early_terminal_;
   std::unordered_map<std::string, Player> early_wins_;
-  std::unordered_map<std::string, Player> GetEarlyTerminals() const;
+  std::unordered_map<std::string, Player> GetEarlyTerminals();
 };
 
 inline std::ostream& operator<<(std::ostream& stream,

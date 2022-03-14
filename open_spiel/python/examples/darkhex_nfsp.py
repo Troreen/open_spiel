@@ -47,11 +47,11 @@ flags.DEFINE_string("game_name", "dark_hex_ir", "Name of the game.")
 flags.DEFINE_integer("num_rows", 4, "Number of rows.")
 flags.DEFINE_integer("num_cols", 3, "Number of cols.")
 flags.DEFINE_integer("num_players", 2, "Number of players.")
-flags.DEFINE_integer("num_train_episodes", int(2e6),
+flags.DEFINE_integer("num_train_episodes", int(2e7),
                      "Number of training episodes.")
-flags.DEFINE_integer("eval_every", int(2e4),
+flags.DEFINE_integer("eval_every", int(2e5),
                      "Episode frequency at which the agents are evaluated.")
-flags.DEFINE_integer("num_eval_games", int(6e3),
+flags.DEFINE_integer("num_eval_games", int(1e4),
                      "Number of evaluation games when running random_games evaluator.")
 flags.DEFINE_list("hidden_layers_sizes", [
     126
@@ -101,7 +101,7 @@ flags.DEFINE_float("epsilon_end", 0.001,
 flags.DEFINE_string("evaluation_metric", "random_games",
                     "Choose from 'exploitability', 'nash_conv', 'random_games'.")
 flags.DEFINE_bool("use_checkpoints", True, "Save/load neural network weights.")
-flags.DEFINE_string("checkpoint_dir", "tmp/nfsp_test_3x3_sresnet_ir_checkpoints",
+flags.DEFINE_string("checkpoint_dir", "tmp/nfsp_test_4x3_sresnet_ir_checkpoints",
                     "Directory to save/load the agent.")
 
 
@@ -234,10 +234,8 @@ def main(unused_argv):
         if FLAGS.use_checkpoints:
           for agent in agents:
             agent.save(FLAGS.checkpoint_dir)
-          # Save the random game results
           data = {
               "game_res": game_res,
-              "rand_res": rand_res,
               "num_train_episodes": FLAGS.num_train_episodes,
               "eval_every": FLAGS.eval_every,
               "num_eval_games": FLAGS.num_eval_games,
@@ -245,7 +243,7 @@ def main(unused_argv):
           with tf.gfile.Open(FLAGS.checkpoint_dir + "/game_res.pkl",
                               "wb") as f:
             pickle.dump(data, f)
-        logger(message=f"{OKBLUE}_____________________________________________{ENDC}")
+        logger(message=f"{OKBLUE}----------------------------------------{ENDC}")
 
       time_step = env.reset()
       while not time_step.last():

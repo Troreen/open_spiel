@@ -434,7 +434,7 @@ class simpleResNet(tf.Module):
       # Input Layer
       self._layers.append(
           tf.keras.layers.Conv2D(
-              filters=128,
+              filters=256,
               kernel_size=3,
               strides=1,
               padding="SAME",
@@ -443,7 +443,7 @@ class simpleResNet(tf.Module):
               name="input_layer"))
       self._layers.append(
           tf.keras.layers.Conv2D(
-              filters=256,
+              filters=512,
               kernel_size=3,
               strides=1,
               padding="SAME",
@@ -452,6 +452,11 @@ class simpleResNet(tf.Module):
               name="hidden_layer"))
       self._layers.append(tf.keras.layers.MaxPool2D(pool_size=2, name="max_pool_input"))
       self._layers.append(tf.keras.layers.Flatten(name="flatten"))
+      self._layers.append(
+          tf.keras.layers.Dense(
+              units=512,
+              activation=tf.nn.relu,
+              name="hidden_dense"))
       self._layers.append(
           tf.keras.layers.Dense(
               units=256,

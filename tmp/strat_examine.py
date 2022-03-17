@@ -15,6 +15,8 @@ def play_against_strategy(strategy, game, player=0):
         print(state.information_state_string(1 - player))
         if state.current_player() == player:
             legal_actions = state.legal_actions()
+            action_probs = strategy.action_probabilities(state)
+            print(f"Action probs: {action_probs}")
             print(f"Legal actions: {legal_actions}")
             action = input("Enter action: ")
             state.apply_action(int(action))

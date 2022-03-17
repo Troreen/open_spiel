@@ -390,7 +390,7 @@ std::unordered_map<std::string, Player> ImperfectRecallDarkHexGame::GetEarlyTerm
         return early_wins_;
     }
     // path is open_spiel/data/dark_hex_early_terminals/<num_rows>x<num_cols>.csv
-    std::string path = "open_spiel/data/dark_hex_early_terminals/" + std::to_string(num_rows()) 
+    std::string path = "/home/bedir/Documents/open_spiel/open_spiel/data/dark_hex_early_terminals/" + std::to_string(num_rows()) 
                        + "x" + std::to_string(num_cols()) + ".csv";
     std::string line;
     std::ifstream myfile(path);

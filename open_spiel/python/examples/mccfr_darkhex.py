@@ -39,7 +39,7 @@ from contextlib import contextmanager
 
 FLAGS = flags.FLAGS
 
-flags.DEFINE_integer("iterations", int(5e6), "Number of iterations")
+flags.DEFINE_integer("iterations", int(5e8), "Number of iterations")
 flags.DEFINE_string("game", "dark_hex_ir", "Name of the game")
 flags.DEFINE_integer("players", 2, "Number of players")
 flags.DEFINE_integer("eval_freq", int(5e4), "How often to run evaluation")

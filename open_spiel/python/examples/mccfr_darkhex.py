@@ -32,14 +32,19 @@ from tqdm import tqdm
 import numpy as np
 import os
 
+from functools import partial
+from itertools import repeat
+import multiprocessing as mp
+from contextlib import contextmanager
+
 FLAGS = flags.FLAGS
 
-flags.DEFINE_integer("iterations", int(1e9), "Number of iterations")
+flags.DEFINE_integer("iterations", int(5e6), "Number of iterations")
 flags.DEFINE_string("game", "dark_hex_ir", "Name of the game")
 flags.DEFINE_integer("players", 2, "Number of players")
-flags.DEFINE_integer("eval_freq", 50000,
-                     "How often to run evaluation")
-flags.DEFINE_integer("num_eval_games", 10000, "Number of games to evaluate")
+flags.DEFINE_integer("eval_freq", int(5e4), "How often to run evaluation")
+flags.DEFINE_integer("num_eval_games", int(1e4), "Number of games to evaluate")
+
 
 def main(_):
   num_rows = 4
@@ -68,26 +73,19 @@ def main(_):
       with open(f"{folder_path}/dark_hex_mccfr_solver", "wb") as file:
         pickle.dump(solver, file, pickle.HIGHEST_PROTOCOL)
 
-      print("Loading the model...")
-      with open(f"{folder_path}/dark_hex_mccfr_solver", "rb") as file:
-        loaded_solver = pickle.load(file)
-
       rand_res.append(rand_eval)
-      with open("rand_res.pkl", "wb") as file:
+      with open(f"{folder_path}/rand_res.pkl", "wb") as file:
         pickle.dump(rand_res, file, pickle.HIGHEST_PROTOCOL)
 
 
-def run_random_games(game, policy, num_games, player=None):
+def run_random_games(game, policy, num_games):
   """Runs random games and returns average score."""
   scores_as_p = [0., 0.]
-  games_per_p = num_games if player else num_games // 2
+  games_per_p = num_games // 2
   
   for _ in range(games_per_p):
-    if player:
-      scores_as_p[player] += run_random_game(game, policy, player) / games_per_p
-    else:
-      scores_as_p[0] += run_random_game(game, policy, 0) / games_per_p
-      scores_as_p[1] += run_random_game(game, policy, 1) / games_per_p
+    scores_as_p[0] += run_random_game(game, policy, 0) / games_per_p
+    scores_as_p[1] += run_random_game(game, policy, 1) / games_per_p
   return scores_as_p
 
 
@@ -104,6 +102,7 @@ def run_random_game(game, policy, player):
     action = np.random.choice(legal_actions, p=action_probs)
     state.apply_action(action)
   return state.returns()[player]
+
 
 if __name__ == "__main__":
   app.run(main)

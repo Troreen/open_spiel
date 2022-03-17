@@ -422,15 +422,19 @@ std::pair<bool, Player> ImperfectRecallDarkHexState::IsEarlyTerminal() const {
   if (player != 0 && player != 1) {
     return {false, kInvalidPlayer};
   }
-  std::string board_state = InformationStateString(1 - player);
+  std::string board_state_p0 = InformationStateString(0);
+  std::string board_state_p1 = InformationStateString(1);
   const std::unordered_map<std::string, Player>* early_wins = GetEarlyWins();
 
-  auto it = early_wins->find(board_state);
+  auto it = early_wins->find(board_state_p0);
   if (it != early_wins->end()) {
     return std::make_pair(true, it->second);
-  } else {
-    return std::make_pair(false, kInvalidPlayer);
   }
+  it = early_wins->find(board_state_p1);
+  if (it != early_wins->end()) {
+    return std::make_pair(true, it->second);
+  }
+  return std::make_pair(false, kInvalidPlayer);
 }
 
 bool ImperfectRecallDarkHexState::IsTerminal() const {
@@ -446,10 +450,11 @@ bool ImperfectRecallDarkHexState::IsTerminal() const {
 
 std::vector<double> ImperfectRecallDarkHexState::Returns() const { 
   if (use_early_terminal_) {
-    double winner = IsEarlyTerminal().second;
-    if (winner == kInvalidPlayer) {
-      return {0, 0};
-    } else if (winner == 0) {
+    std::pair<bool, Player> early_terminal = IsEarlyTerminal();
+    if (!early_terminal.first) {
+      return DarkHexState::Returns();
+    }
+    if (early_terminal.second == 0) {
       return {1, -1};
     } else {
       return {-1, 1};

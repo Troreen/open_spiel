@@ -26,56 +26,58 @@ from __future__ import print_function
 import pickle
 from absl import app
 from absl import flags
+from open_spiel.python.algorithms import exploitability
 
 import pyspiel
 from tqdm import tqdm
 import numpy as np
 import os
-
-from functools import partial
-from itertools import repeat
-import multiprocessing as mp
-from contextlib import contextmanager
+import time
 
 FLAGS = flags.FLAGS
 
-flags.DEFINE_integer("iterations", int(5e8), "Number of iterations")
-flags.DEFINE_string("game", "dark_hex_ir", "Name of the game")
+flags.DEFINE_integer("iterations", int(5e3), "Number of iterations")
+flags.DEFINE_string("game", "dark_hex", "Name of the game")
 flags.DEFINE_integer("players", 2, "Number of players")
-flags.DEFINE_integer("eval_freq", int(5e4), "How often to run evaluation")
+flags.DEFINE_integer("eval_freq", int(5), "How often to run evaluation")
 flags.DEFINE_integer("num_eval_games", int(1e4), "Number of games to evaluate")
 
 
 def main(_):
-  num_rows = 4
+  num_rows = 3
   num_cols = 3
   game = pyspiel.load_game(
       FLAGS.game,
       {"num_rows": num_rows,
-       "num_cols": num_cols,
-       "use_early_terminal": True},
+       "num_cols": num_cols},
   )
-  folder_path = f"tmp/dark_hex_mccfr_{num_rows}x{num_cols}"
+  folder_path = f"tmp/dark_hex_mccfr_{num_rows}x{num_cols}_pr"
   # create folder if it doesn't exist
   if not os.path.exists(folder_path):
     os.makedirs(folder_path)
 
   solver = pyspiel.OutcomeSamplingMCCFRSolver(game)
-  rand_res = []
-  for i in tqdm(range(FLAGS.iterations)):
+  nash_res = []
+  cur_time = time.time()
+  for i in range(FLAGS.iterations):
     solver.run_iteration()
     if i % FLAGS.eval_freq == 0:
       policy = solver.average_policy()
-      rand_eval = run_random_games(game, policy, FLAGS.num_eval_games)
-      print(f"Ep {i}; Rand eval: {rand_eval}")
+
+      # rand_eval = run_random_games(game, policy, FLAGS.num_eval_games)
+      # print(f"Ep {i}; Rand eval: {rand_eval}")
+      conv = exploitability.nash_conv(game, policy)
+      print("Iteration {} nashconv {}".format(i, conv))
+      print("Time for iteration: {}".format(time.time() - cur_time))
+      cur_time = time.time()
 
       print("Persisting the model...")
       with open(f"{folder_path}/dark_hex_mccfr_solver", "wb") as file:
         pickle.dump(solver, file, pickle.HIGHEST_PROTOCOL)
 
-      rand_res.append(rand_eval)
-      with open(f"{folder_path}/rand_res.pkl", "wb") as file:
-        pickle.dump(rand_res, file, pickle.HIGHEST_PROTOCOL)
+      nash_res.append(conv)
+      with open(f"{folder_path}/nash_res.pkl", "wb") as file:
+        pickle.dump(nash_res, file, pickle.HIGHEST_PROTOCOL)
 
 
 def run_random_games(game, policy, num_games):

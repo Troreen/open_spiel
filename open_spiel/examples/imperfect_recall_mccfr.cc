@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <fstream>
+#include <iostream>
 #include <ostream>
 #include <string>
 
@@ -25,9 +27,9 @@
 #include "open_spiel/spiel_utils.h"
 
 // E.g. another choice: dark_hex_ir(board_size=2)
-ABSL_FLAG(std::string, game, "liars_dice_ir", "Game string");
+ABSL_FLAG(std::string, game, "dark_hex_ir", "Game string");
 ABSL_FLAG(int, num_iters, 1000000, "How many iters to run for.");
-ABSL_FLAG(int, report_every, 1000, "How often to report.");
+ABSL_FLAG(int, report_every, 10000, "How often to report.");
 
 namespace open_spiel {
 namespace {
@@ -40,7 +42,7 @@ void ImperfectRecallMCCFR() {
       open_spiel::LoadGame(absl::GetFlag(FLAGS_game));
   // algorithms::ExternalSamplingMCCFRSolver solver(*game);
   algorithms::OutcomeSamplingMCCFRSolver solver(*game);
-
+  std::vector<double> results = {};
   for (int i = 0; i < absl::GetFlag(FLAGS_num_iters); ++i) {
     solver.RunIteration();
 
@@ -52,8 +54,16 @@ void ImperfectRecallMCCFR() {
       TabularBestResponseMDP tbr(*game, *average_policy);
       TabularBestResponseMDPInfo br_info = tbr.NashConv();
       std::cout << i << " " << br_info.nash_conv << std::endl;
+      results.push_back(br_info.nash_conv);
     }
   }
+  // save results to csv file
+  std::ofstream outfile;
+  outfile.open("results.csv");
+  for (int i = 0; i < results.size(); ++i) {
+    outfile << results[i] << std::endl;
+  }
+  outfile.close();
 }
 }  // namespace
 }  // namespace open_spiel

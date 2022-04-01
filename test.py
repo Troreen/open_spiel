@@ -1,6 +1,8 @@
 import pyspiel
 import numpy as np
 import tqdm
+import time
+import pickle
 
 def test_dark_hex_early_terminal():
   game = pyspiel.load_game(
@@ -30,27 +32,34 @@ def test_dark_hex_num_hidden_stones():
   print("test_dark_hex_num_hidden_stones passed")
 
 def test_counting_states_early_terminal():
-  num_games = 1000
+  with open(f"tmp/dark_hex_mccfr_4x3/dark_hex_mccfr_solver", "rb") as file:
+    solver = pickle.load(file)
+  num_games = int(1e7)
   game = pyspiel.load_game("dark_hex_ir(num_rows=4,num_cols=3,use_early_terminal=true)")
-  num_states_early_term = _measure_games(game, num_games)
-  game = pyspiel.load_game("dark_hex_ir(num_rows=4,num_cols=3)")
-  num_states_no_early_term = _measure_games(game, num_games)
-  # assert num_states_early_term < num_states_no_early_term
-  print(f"Number of states with early terminal: {num_states_early_term}")
-  print(f"Number of states without early terminal: {num_states_no_early_term}")
+  early_ns, early_times = _measure_games(game, num_games, solver.average_policy())
+  game = pyspiel.load_game("dark_hex_ir(num_rows=4,num_cols=3,use_early_terminal=false)")
+  n_early_ns, n_early_times = _measure_games(game, num_games, solver.average_policy())
+  # report
+  print("early_ns:", early_ns)
+  print("early_times:", early_times)
+  print("n_early_ns:", n_early_ns)
+  print("n_early_times:", n_early_times)
+  
 
-def _measure_games(game, num_games):
+def _measure_games(game, num_games, policy):
   tot_game_length = 0
+  start = time.time()
   for _ in tqdm.tqdm(range(num_games)):
     state = game.new_initial_state()
     while not state.is_terminal():
-      rand_action = state.legal_actions()[np.random.randint(len(state.legal_actions()))]
-      state.apply_action(rand_action)
+      action_probs = policy.action_probabilities(state)
+      action = np.random.choice(list(action_probs.keys()), p=list(action_probs.values()))
+      state.apply_action(action)
       tot_game_length += 1
-    print(state.returns())
-  return tot_game_length / num_games
+  end = time.time()
+  return tot_game_length, (end - start)
       
 
-test_dark_hex_early_terminal()
-test_dark_hex_num_hidden_stones()
+# test_dark_hex_early_terminal()
+# test_dark_hex_num_hidden_stones()
 test_counting_states_early_terminal()

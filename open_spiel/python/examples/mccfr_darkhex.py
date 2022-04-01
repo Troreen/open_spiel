@@ -36,48 +36,48 @@ import time
 
 FLAGS = flags.FLAGS
 
-flags.DEFINE_integer("iterations", int(5e3), "Number of iterations")
-flags.DEFINE_string("game", "dark_hex", "Name of the game")
+flags.DEFINE_integer("iterations", int(5e7), "Number of iterations")
+flags.DEFINE_string("game", "dark_hex_ir", "Name of the game")
 flags.DEFINE_integer("players", 2, "Number of players")
-flags.DEFINE_integer("eval_freq", int(5), "How often to run evaluation")
+flags.DEFINE_integer("eval_freq", int(5e4), "How often to run evaluation")
 flags.DEFINE_integer("num_eval_games", int(1e4), "Number of games to evaluate")
 
 
 def main(_):
-  num_rows = 3
+  num_rows = 4
   num_cols = 3
   game = pyspiel.load_game(
       FLAGS.game,
       {"num_rows": num_rows,
-       "num_cols": num_cols},
-  )
-  folder_path = f"tmp/dark_hex_mccfr_{num_rows}x{num_cols}_pr"
+       "num_cols": num_cols,
+       "use_early_terminal": True})
+  folder_path = f"tmp/arena_mccfr_{num_rows}x{num_cols}_pONE"
   # create folder if it doesn't exist
   if not os.path.exists(folder_path):
     os.makedirs(folder_path)
 
   solver = pyspiel.OutcomeSamplingMCCFRSolver(game)
-  nash_res = []
+  evals = []
   cur_time = time.time()
   for i in range(FLAGS.iterations):
     solver.run_iteration()
     if i % FLAGS.eval_freq == 0:
       policy = solver.average_policy()
 
-      # rand_eval = run_random_games(game, policy, FLAGS.num_eval_games)
-      # print(f"Ep {i}; Rand eval: {rand_eval}")
-      conv = exploitability.nash_conv(game, policy)
-      print("Iteration {} nashconv {}".format(i, conv))
-      print("Time for iteration: {}".format(time.time() - cur_time))
-      cur_time = time.time()
+      _eval = run_random_games(game, policy, FLAGS.num_eval_games)
+      print(f"Ep {i}; Rand eval: {_eval}")
+      # _eval = exploitability.nash_conv(game, policy)
+      # print("Iteration {} nashconv {}".format(i, _eval))
+      # print("Time for iteration: {}".format(time.time() - cur_time))
+      # cur_time = time.time()
 
       print("Persisting the model...")
       with open(f"{folder_path}/dark_hex_mccfr_solver", "wb") as file:
         pickle.dump(solver, file, pickle.HIGHEST_PROTOCOL)
 
-      nash_res.append(conv)
-      with open(f"{folder_path}/nash_res.pkl", "wb") as file:
-        pickle.dump(nash_res, file, pickle.HIGHEST_PROTOCOL)
+      evals.append(_eval)
+      with open(f"{folder_path}/eval.pkl", "wb") as file:
+        pickle.dump(evals, file, pickle.HIGHEST_PROTOCOL)
 
 
 def run_random_games(game, policy, num_games):

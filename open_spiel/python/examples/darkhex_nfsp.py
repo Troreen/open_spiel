@@ -44,12 +44,12 @@ BOLD = '\033[1m'
 FLAGS = flags.FLAGS
 
 flags.DEFINE_string("game_name", "dark_hex_ir", "Name of the game.")
-flags.DEFINE_integer("num_rows", 4, "Number of rows.")
-flags.DEFINE_integer("num_cols", 3, "Number of cols.")
+flags.DEFINE_integer("num_rows", 3, "Number of rows.")
+flags.DEFINE_integer("num_cols", 2, "Number of cols.")
 flags.DEFINE_integer("num_players", 2, "Number of players.")
-flags.DEFINE_integer("num_train_episodes", int(2e7),
+flags.DEFINE_integer("num_train_episodes", int(2e6),
                      "Number of training episodes.")
-flags.DEFINE_integer("eval_every", int(2e5),
+flags.DEFINE_integer("eval_every", int(2e4),
                      "Episode frequency at which the agents are evaluated.")
 flags.DEFINE_integer("num_eval_games", int(1e4),
                      "Number of evaluation games when running random_games evaluator.")
@@ -101,7 +101,7 @@ flags.DEFINE_float("epsilon_end", 0.001,
 flags.DEFINE_string("evaluation_metric", "random_games",
                     "Choose from 'exploitability', 'nash_conv', 'random_games'.")
 flags.DEFINE_bool("use_checkpoints", True, "Save/load neural network weights.")
-flags.DEFINE_string("checkpoint_dir", "tmp/nfsp_test_4x3_sresnet_ir_checkpoints",
+flags.DEFINE_string("checkpoint_dir", "tmp/nfsp_3x2_pONE",
                     "Directory to save/load the agent.")
 
 
@@ -198,7 +198,7 @@ def main(unused_argv):
     sess.run(tf.global_variables_initializer())
 
     game_res = []
-    rand_res = []
+    nash_res = []
     if FLAGS.use_checkpoints:
       for agent in agents:
         if agent.has_checkpoint(FLAGS.checkpoint_dir):
@@ -231,11 +231,15 @@ def main(unused_argv):
           raise ValueError(" ".join(
               ("Invalid evaluation metric, choose from",
                "'exploitability', 'nash_conv', 'random_games'.")))
+        nash_conv = exploitability.nash_conv(env.game, joint_avg_policy)
+        logger(message=f"{OKGREEN}{BOLD}[{ep + 1}] NashConv {nash_conv}{ENDC}")
+        nash_res.append(nash_conv)
         if FLAGS.use_checkpoints:
           for agent in agents:
             agent.save(FLAGS.checkpoint_dir)
           data = {
               "game_res": game_res,
+              "nash_res": nash_res,
               "num_train_episodes": FLAGS.num_train_episodes,
               "eval_every": FLAGS.eval_every,
               "num_eval_games": FLAGS.num_eval_games,

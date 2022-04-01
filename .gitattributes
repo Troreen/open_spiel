@@ -1,0 +1,17 @@
+tmp/strat_examine.py filter=lfs diff=lfs merge=lfs -text
+tmp/dark_hex_cfr_2x2 filter=lfs diff=lfs merge=lfs -text
+tmp/dark_hex_cfr_2x2_pr filter=lfs diff=lfs merge=lfs -text
+tmp/nfsp_dark_hex_comparison.png filter=lfs diff=lfs merge=lfs -text
+tmp/plot_mccfr_res.py filter=lfs diff=lfs merge=lfs -text
+tmp/nfsp_dark_hex_comparison_nashconv.png filter=lfs diff=lfs merge=lfs -text
+tmp/vanilla_cfr_dark_hex_comparison.png filter=lfs diff=lfs merge=lfs -text
+tmp/arena_mccfr_4x3 filter=lfs diff=lfs merge=lfs -text
+tmp/arena_mccfr_4x4 filter=lfs diff=lfs merge=lfs -text
+tmp/compare_ir_pr.py filter=lfs diff=lfs merge=lfs -text
+tmp/dark_hex_cfr_2x2_ir filter=lfs diff=lfs merge=lfs -text
+tmp/arena_nfsp_4x3 filter=lfs diff=lfs merge=lfs -text
+tmp/mccfr_dark_hex_comparison.png filter=lfs diff=lfs merge=lfs -text
+tmp/nfsp_test_4x3_sresnet_ir_checkpoints filter=lfs diff=lfs merge=lfs -text
+tmp/arena_mccfr_4x3_pONE filter=lfs diff=lfs merge=lfs -text
+tmp/dark_hex_cfr_3x3_ir filter=lfs diff=lfs merge=lfs -text
+tmp/nfsp_4x3_sresnet_ir_eureka filter=lfs diff=lfs merge=lfs -text

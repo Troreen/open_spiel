@@ -169,7 +169,7 @@ def main(unused_argv):
   pone_text = "pone" if pone else "npone"
   ir = "ir" if FLAGS.game_name == "dark_hex_ir" else "pr"
 
-  checkpoint_dir = f"arena_nfsp_{FLAGS.num_rows}x{FLAGS.num_cols}_{pone_text}_{ir}"
+  checkpoint_dir = f"tmp/Arena/arena_nfsp_{FLAGS.num_rows}x{FLAGS.num_cols}_{pone_text}_{ir}"
 
   if FLAGS.use_checkpoints:
     # Create the folder if it doesn't exist.

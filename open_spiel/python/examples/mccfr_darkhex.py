@@ -60,7 +60,7 @@ def main(_):
                   "num_cols": num_cols}
   game = pyspiel.load_game(FLAGS.game, parameters)
   
-  folder_path = f"arena_mccfr_{num_rows}x{num_cols}_{pone_text}_{ir_text}"
+  folder_path = f"tmp/Arena/arena_mccfr_{num_rows}x{num_cols}_{pone_text}_{ir_text}"
   # create folder if it doesn't exist
   if not os.path.exists(folder_path):
     os.makedirs(folder_path)

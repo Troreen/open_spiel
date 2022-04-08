@@ -47,9 +47,9 @@ flags.DEFINE_string("game_name", "dark_hex_ir", "Name of the game.")
 flags.DEFINE_integer("num_rows", 4, "Number of rows.")
 flags.DEFINE_integer("num_cols", 3, "Number of cols.")
 flags.DEFINE_integer("num_players", 2, "Number of players.")
-flags.DEFINE_integer("num_train_episodes", int(1e7),
+flags.DEFINE_integer("num_train_episodes", int(1e6),
                      "Number of training episodes.")
-flags.DEFINE_integer("eval_every", int(1e5),
+flags.DEFINE_integer("eval_every", int(1e4),
                      "Episode frequency at which the agents are evaluated.")
 flags.DEFINE_integer("num_eval_games", int(1e4),
                      "Number of evaluation games when running random_games evaluator.")
@@ -130,10 +130,18 @@ def main(unused_argv):
   logger(message=f"{OKBLUE}Loading game {FLAGS.game_name}{ENDC}")
   game = FLAGS.game_name
   num_players = FLAGS.num_players
-  pone = False
+  pone = True
   
-  env_configs = {"num_rows": FLAGS.num_rows, "num_cols": FLAGS.num_cols,
-                 "use_early_terminal": pone}
+  if game == "dark_hex":
+    pone = False
+    env_configs = {
+        "num_rows": FLAGS.num_rows,
+        "num_cols": FLAGS.num_cols,
+    }
+    FLAGS.model_type = "mlp"
+  else:
+    env_configs = {"num_rows": FLAGS.num_rows, "num_cols": FLAGS.num_cols,
+                   "use_early_terminal": pone}
   env = rl_environment.Environment(game, **env_configs)
   info_state_size = env.observation_spec()["info_state"][0]
   num_actions = env.action_spec()["num_actions"]
@@ -188,18 +196,21 @@ def main(unused_argv):
 
     game_res = []
     nash_res = []
+    num_past_train_episodes = 0
     if FLAGS.use_checkpoints:
       for agent in agents:
-        if agent.has_checkpoint(checkpoint_dir):
+        if os.path.exists(f"{checkpoint_dir}") and os.listdir(f"{checkpoint_dir}"):
           agent.restore(checkpoint_dir)
+        # print("Restored checkpoint.")
       # load the random game results if they exist
       if tf.gfile.Exists(checkpoint_dir + "/game_res.pkl"):
         with tf.gfile.Open(checkpoint_dir + "/game_res.pkl",
                            "rb") as f:
           data_file = pickle.load(f)
-          data_file["game_res"] = game_res
+          game_res = data_file["game_res"]
+          num_past_train_episodes = data_file["past_train_episodes"]
     
-    for ep in logger.iter_bar(episodes=range(FLAGS.num_train_episodes)):
+    for ep in logger.iter_bar(episodes=range(num_past_train_episodes, FLAGS.num_train_episodes)):
       if (ep + 1) % FLAGS.eval_every == 0:
         losses = [agent.loss for agent in agents]
         logger(message=f"{RED}{BOLD}Losses: {losses}{ENDC}")
@@ -233,7 +244,7 @@ def main(unused_argv):
               "eval_every": FLAGS.eval_every,
               "num_eval_games": FLAGS.num_eval_games,
               "game_name": FLAGS.game_name,
-              
+              "past_train_episodes": ep + 1,
           }
           with tf.gfile.Open(checkpoint_dir + "/game_res.pkl",
                               "wb") as f:

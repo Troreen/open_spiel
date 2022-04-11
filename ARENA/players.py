@@ -48,7 +48,7 @@ class DHN(Player):
 
         self.p_type = "nfsp"
         self.player_info = f"{pone_text}_{ir_text}"
-        path = f"tmp/arena_{p_type}_{num_rows}x{num_cols}_{self.player_info}"
+        path = f"tmp/Arena/arena_{self.p_type}_{num_rows}x{num_cols}_{self.player_info}"
         super(DHN, self).__init__(self.p_type, path)
 
         self.read_data()
@@ -60,7 +60,7 @@ class DHN(Player):
                 idx,
                 self.obs_state_size,
                 self.num_actions,
-                [126],
+                [128],
                 model_type=self.model_type,
                 input_shape=(3, self.num_rows, self.num_cols),
                 **def_values) for idx in range(2)
@@ -97,15 +97,14 @@ class DHM(Player):
     """
     Dark hex MCCFR player
     """
-    def __init__(self, num_rows, num_cols, num_actions, 
-                 obs_state_size, pone, imperfect_recall):
+    def __init__(self, num_rows, num_cols, pone, imperfect_recall):
         self.num_rows = num_rows
         self.num_cols = num_cols
         pone_text = "pone" if pone else "npone"
         ir = "ir" if imperfect_recall else "pr"
         self.player_info = f"{pone_text}_{ir}"
         self.p_type = "mccfr"
-        f"tmp/arena_{self.p_type}_{num_rows}x{num_cols}_{self.player_info}/dark_hex_mccfr_solver"
+        f"tmp/Arena/arena_{self.p_type}_{num_rows}x{num_cols}_{self.player_info}/dark_hex_mccfr_solver"
 
     def read_data(self):
         with open(self.path, "rb") as file:

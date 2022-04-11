@@ -45,7 +45,7 @@ FLAGS = flags.FLAGS
 
 flags.DEFINE_string("game_name", "dark_hex_ir", "Name of the game.")
 flags.DEFINE_integer("num_rows", 4, "Number of rows.")
-flags.DEFINE_integer("num_cols", 4, "Number of cols.")
+flags.DEFINE_integer("num_cols", 3, "Number of cols.")
 flags.DEFINE_integer("num_players", 2, "Number of players.")
 flags.DEFINE_integer("num_train_episodes", int(1e6),
                      "Number of training episodes.")
@@ -55,9 +55,9 @@ flags.DEFINE_integer("num_eval_games", int(1e4),
                      "Number of evaluation games when running random_games evaluator.")
 flags.DEFINE_list("hidden_layers_sizes", [128], 
                      "Number of hidden units to use in each layer of the avg-net and Q-net.")
-flags.DEFINE_integer("replay_buffer_capacity", int(2e4),
+flags.DEFINE_integer("replay_buffer_capacity", int(2e5),
                      "Size of the replay buffer.")
-flags.DEFINE_integer("reservoir_buffer_capacity", int(2e5),
+flags.DEFINE_integer("reservoir_buffer_capacity", int(2e6),
                      "Size of the reservoir buffer.")
 flags.DEFINE_integer("min_buffer_size_to_learn", 1000,
                      "Number of samples in buffer before learning begins.")
@@ -130,7 +130,7 @@ def main(unused_argv):
   logger(message=f"{OKBLUE}Loading game {FLAGS.game_name}{ENDC}")
   game = FLAGS.game_name
   num_players = FLAGS.num_players
-  pone = False
+  pone = True
   
   if game == "dark_hex":
     pone = False

@@ -72,44 +72,55 @@ def arena(n):
     """
     num_rows = 4
     num_cols = 3
+    print("\033[1m" + "Arena" + "\033[0m")
+    print("\033[1m\033[32m" + "Setting up agents..." + "\033[0m")
+
+    _pr_game = pyspiel.load_game(f"dark_hex(num_rows={num_rows},num_cols={num_cols})")
+    pr_obs_size = _pr_game.information_state_tensor_size()
+    pr_action_size = _pr_game.num_distinct_actions()
+    _ir_game = pyspiel.load_game(f"dark_hex_ir(num_rows={num_rows},num_cols={num_cols})")
+    ir_obs_size = _ir_game.information_state_tensor_size()
+    ir_action_size = _ir_game.num_distinct_actions()
+
     with tf.Session() as sess:
         agents = [
             # NFSP - Perfect Recall
-            DHN(num_rows=num_rows, num_cols=num_cols, num_actions=num_actions,
+            DHN(num_rows=num_rows, num_cols=num_cols, num_actions=pr_action_size,
                 obs_state_size=pr_obs_size, pone=False, imperfect_recall=False,
                 sess=sess),
             # NFSP - Imperfect Recall with no pONE
-            DHN(num_rows=num_rows, num_cols=num_cols, num_actions=num_actions,
+            DHN(num_rows=num_rows, num_cols=num_cols, num_actions=ir_action_size,
                 obs_state_size=ir_obs_size, pone=False, imperfect_recall=True,
                 sess=sess),
             # NFSP - Imperfect Recall with pONE
-            DHN(num_rows=num_rows, num_cols=num_cols, num_actions=num_actions,
+            DHN(num_rows=num_rows, num_cols=num_cols, num_actions=ir_action_size,
                 obs_state_size=ir_obs_size, pone=True, imperfect_recall=True,
                 sess=sess),
             # MCCFR - Perfect Recall
-            DHM(num_rows=num_rows, num_cols=num_cols, num_actions=num_actions,
-                obs_state_size=pr_obs_size, pone=False, imperfect_recall=False),
+            DHM(num_rows=num_rows, num_cols=num_cols, pone=False, imperfect_recall=False),
             # MCCFR - Imperfect Recall with no pONE
-            DHM(num_rows=num_rows, num_cols=num_cols, num_actions=num_actions,
-                obs_state_size=ir_obs_size, pone=False, imperfect_recall=True),
+            DHM(num_rows=num_rows, num_cols=num_cols, pone=False, imperfect_recall=True),
             # MCCFR - Imperfect Recall with pONE
-            DHM(num_rows=num_rows, num_cols=num_cols, num_actions=num_actions,
-                obs_state_size=ir_obs_size, pone=True, imperfect_recall=True),
+            DHM(num_rows=num_rows, num_cols=num_cols, pone=True, imperfect_recall=True),
             # Handcrafted - Ryan's Player
             HandCraftedPlayer(num_rows=num_rows, num_cols=num_cols,
                               p0_path="tmp/ryan_player/p0_strategy.pkl",
                               p1_path="tmp/ryan_player/p1_strategy.pkl")
         ]
+
+        print("\033[1m\033[33m" + "Starting games..." + "\033[0m")
+
         records = []
         for i in range(len(agents)):
             for j in range(i + 1, len(agents)):
-                wins = play_games(agents[i], agents[j], n)
                 p0_name = f"{agents[i].p_type}_{agents[i].player_info}"
                 p1_name = f"{agents[j].p_type}_{agents[j].player_info}"
+                print(f"\033[1m\033[32m" + f"Playing {p0_name} vs {p1_name}..." + "\033[0m")
+                wins = play_games(agents[i], agents[j], n)
                 print(f"{p0_name} vs {p1_name}: {wins[0]} - {wins[1]}")
                 records.append([p0_name, p1_name, wins[0], wins[1]])
     return records
 
 
 if __name__ == "__main__":
-    main()
+    arena(5)

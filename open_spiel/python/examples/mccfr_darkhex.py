@@ -39,19 +39,28 @@ FLAGS = flags.FLAGS
 flags.DEFINE_integer("iterations", int(5e7), "Number of iterations")
 flags.DEFINE_string("game", "dark_hex_ir", "Name of the game")
 flags.DEFINE_integer("players", 2, "Number of players")
-flags.DEFINE_integer("eval_freq", int(5e4), "How often to run evaluation")
+flags.DEFINE_integer("eval_freq", int(5e5), "How often to run evaluation")
 flags.DEFINE_integer("num_eval_games", int(1e4), "Number of games to evaluate")
 
 
 def main(_):
   num_rows = 4
   num_cols = 3
-  game = pyspiel.load_game(
-      FLAGS.game,
-      {"num_rows": num_rows,
-       "num_cols": num_cols,
-       "use_early_terminal": True})
-  folder_path = f"tmp/arena_mccfr_{num_rows}x{num_cols}_pONE"
+  pone = True
+  if FLAGS.game == "dark_hex_ir":
+    ir_text = "ir"
+    pone_text = "pone" if pone else "npone"
+    parameters = {"num_rows": num_rows,
+                  "num_cols": num_cols,
+                  "use_early_terminal": pone}
+  else:
+    ir_text = "pr"
+    pone_text = "npone"
+    parameters = {"num_rows": num_rows,
+                  "num_cols": num_cols}
+  game = pyspiel.load_game(FLAGS.game, parameters)
+  
+  folder_path = f"tmp/Arena/arena_mccfr_{num_rows}x{num_cols}_{pone_text}_{ir_text}"
   # create folder if it doesn't exist
   if not os.path.exists(folder_path):
     os.makedirs(folder_path)
@@ -59,17 +68,13 @@ def main(_):
   solver = pyspiel.OutcomeSamplingMCCFRSolver(game)
   evals = []
   cur_time = time.time()
-  for i in range(FLAGS.iterations):
+  for i in tqdm(range(FLAGS.iterations)):
     solver.run_iteration()
     if i % FLAGS.eval_freq == 0:
       policy = solver.average_policy()
 
       _eval = run_random_games(game, policy, FLAGS.num_eval_games)
       print(f"Ep {i}; Rand eval: {_eval}")
-      # _eval = exploitability.nash_conv(game, policy)
-      # print("Iteration {} nashconv {}".format(i, _eval))
-      # print("Time for iteration: {}".format(time.time() - cur_time))
-      # cur_time = time.time()
 
       print("Persisting the model...")
       with open(f"{folder_path}/dark_hex_mccfr_solver", "wb") as file:

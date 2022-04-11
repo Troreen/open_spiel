@@ -14,10 +14,8 @@
 """Simple network classes for Tensorflow based on tf.Module."""
 
 import math
-import tensorflow.compat.v1 as tf
-
-# Temporarily disable TF2 behavior until code is updated.
-tf.disable_v2_behavior()
+import tensorflow as tf
+from tensorflow.keras.models import Model
 
 # This code is based directly on the TF docs:
 # https://www.tensorflow.org/versions/r1.15/api_docs/python/tf/Module
@@ -423,55 +421,29 @@ class ResNet(tf.Module):
     return x
   
   
-class simpleResNet(tf.Module):
+class simpleResNet(Model):
   """A simple one hidden layer resnet module"""
   
   def __init__(self, input_shape, output_size):
     super(simpleResNet, self).__init__()
     self._shape = input_shape
     self._layers = []
-    with self.name_scope:
-      # Input Layer
-      self._layers.append(
-          tf.keras.layers.Conv2D(
-              filters=256,
-              kernel_size=3,
-              strides=1,
-              padding="SAME",
-              activation=tf.nn.relu,
-              input_shape=input_shape,
-              name="input_layer"))
-      self._layers.append(
-          tf.keras.layers.Conv2D(
-              filters=512,
-              kernel_size=3,
-              strides=1,
-              padding="SAME",
-              activation=tf.nn.relu,
-              input_shape=input_shape,
-              name="hidden_layer"))
-      self._layers.append(tf.keras.layers.MaxPool2D(pool_size=2, name="max_pool_input"))
-      self._layers.append(tf.keras.layers.Flatten(name="flatten"))
-      self._layers.append(
-          tf.keras.layers.Dense(
-              units=512,
-              activation=tf.nn.relu,
-              name="hidden_dense"))
-      self._layers.append(
-          tf.keras.layers.Dense(
-              units=256,
-              activation=tf.nn.relu,
-              name="hidden_dense"))
-      # Output layer
-      self._layers.append(
-          tf.keras.layers.Dense(
-              units=output_size,
-              activation=None,
-              name="output_layer"))
-      
-  @tf.Module.with_name_scope
+
+    self._layers.append(tf.keras.layers.Conv2D(filters=256, kernel_size=3, strides=1, padding="SAME", activation="relu", input_shape=input_shape, name="input_layer"))
+    self._layers.append(tf.keras.layers.Conv2D(filters=512, kernel_size=3, strides=1, padding="SAME", activation="relu", name="conv_layer_1"))
+    self._layers.append(tf.keras.layers.MaxPool2D(pool_size=2, name="max_pool_1"))
+    self._layers.append(tf.keras.layers.Flatten(name="flatten"))
+    self._layers.append(tf.keras.layers.Dense(units=512, activation="relu", name="dense_layer_1"))
+    self._layers.append(tf.keras.layers.Dense(units=256, activation="relu", name="dense_layer_2"))
+    self._layers.append(tf.keras.layers.Dense(units=output_size, activation=None, name="output_layer"))
+  
   def __call__(self, x):
     x = tf.reshape(x, [-1, *self._shape])
     for layer in self._layers:
       x = layer(x)
     return x
+
+  # def save(self, path):
+  #   """Saves the model to a file"""
+  #   self.save_weights(path)
+    

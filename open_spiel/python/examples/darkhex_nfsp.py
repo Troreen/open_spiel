@@ -185,7 +185,6 @@ def main(unused_argv):
             info_state_size,
             num_actions,
             hidden_layers_sizes,
-            # model_type='mlp',
             model_type=FLAGS.model_type,
             input_shape=(3, FLAGS.num_rows, FLAGS.num_cols),
             **kwargs) for idx in range(num_players)
@@ -201,7 +200,7 @@ def main(unused_argv):
       for agent in agents:
         if os.path.exists(f"{checkpoint_dir}") and os.listdir(f"{checkpoint_dir}"):
           agent.restore(checkpoint_dir)
-        # print("Restored checkpoint.")
+          print("Restored checkpoint.")
       # load the random game results if they exist
       if tf.gfile.Exists(checkpoint_dir + "/game_res.pkl"):
         with tf.gfile.Open(checkpoint_dir + "/game_res.pkl",
@@ -211,7 +210,7 @@ def main(unused_argv):
           num_past_train_episodes = data_file["past_train_episodes"]
     
     for ep in logger.iter_bar(episodes=range(num_past_train_episodes, FLAGS.num_train_episodes)):
-      if (ep + 1) % FLAGS.eval_every == 0:
+      if (ep + 1) % FLAGS.eval_every == 0 or (ep + 1) == FLAGS.num_train_episodes:
         losses = [agent.loss for agent in agents]
         logger(message=f"{RED}{BOLD}Losses: {losses}{ENDC}")
         if FLAGS.evaluation_metric == "exploitability":
@@ -294,4 +293,3 @@ def run_random_game(game, policy, player):
 
 if __name__ == "__main__":
   app.run(main)
-  # play_with_agent(None)

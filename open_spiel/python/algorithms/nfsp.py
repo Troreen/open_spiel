@@ -33,9 +33,6 @@ from open_spiel.python import rl_agent
 from open_spiel.python import simple_nets
 from open_spiel.python.algorithms import dqn
 
-# Temporarily disable TF2 behavior until code is updated.
-tf.disable_v2_behavior()
-
 Transition = collections.namedtuple(
     "Transition", "info_state action_probs legal_actions_mask")
 
@@ -200,6 +197,13 @@ class NFSP(rl_agent.AbstractAgent):
     probs[legal_actions] = action_probs[0][legal_actions]
     probs /= sum(probs)
     action = np.random.choice(len(probs), p=probs)
+    # sum_probs = sum(probs)
+    # if sum_probs <= 0:
+    #   action = np.random.choice(legal_actions)
+    #   probs[action] = 1.0
+    # else:
+    #   probs /= sum_probs 
+    #   action = np.random.choice(len(probs), p=probs)
     return action, probs
 
   @property
@@ -322,12 +326,19 @@ class NFSP(rl_agent.AbstractAgent):
     Args:
       checkpoint_dir: directory where checkpoints will be saved.
     """
-    for name, saver in self._savers:
-      path = saver.save(
-          self._session,
-          self._full_checkpoint_name(checkpoint_dir, name),
-          latest_filename=self._latest_checkpoint_filename(name))
+    # self._savers = [
+    #     ("q_network", tf.train.Saver(self._rl_agent._q_network.variables)),
+    #     ("avg_network", tf.train.Saver(self._avg_network.variables))
+    # ]
+    # for name, saver in self._savers:
+    #   path = saver.save(
+    #       self._session,
+    #       self._full_checkpoint_name(checkpoint_dir, name),
+    #       latest_filename=self._latest_checkpoint_filename(name))
       # logging.info("Saved to path: %s", path)
+    # save using tf2 save_weights
+    self._rl_agent._q_network.save_weights(checkpoint_dir + "/q_network")
+    self._avg_network.save_weights(checkpoint_dir + "/avg_network")
 
   def has_checkpoint(self, checkpoint_dir):
     for name, _ in self._savers:
@@ -347,10 +358,13 @@ class NFSP(rl_agent.AbstractAgent):
     Args:
       checkpoint_dir: directory from which checkpoints will be restored.
     """
-    for name, saver in self._savers:
-      full_checkpoint_dir = self._full_checkpoint_name(checkpoint_dir, name)
-      logging.info("Restoring checkpoint: %s", full_checkpoint_dir)
-      saver.restore(self._session, full_checkpoint_dir)
+    # for name, saver in self._savers:
+    #   full_checkpoint_dir = self._full_checkpoint_name(checkpoint_dir, name)
+    #   logging.info("Restoring checkpoint: %s", full_checkpoint_dir)
+    #   saver.restore(self._session, full_checkpoint_dir)
+    # restore using tf2 load_weights
+    self._rl_agent._q_network.load_weights(checkpoint_dir + "/q_network")
+    self._avg_network.load_weights(checkpoint_dir + "/avg_network")
 
 
 class ReservoirBuffer(object):

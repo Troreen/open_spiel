@@ -1,6 +1,8 @@
 from player import Player
 import numpy as np
 import pickle
+import os
+import pyspiel
 
 from open_spiel.python import rl_environment
 from open_spiel.python.algorithms import nfsp
@@ -93,29 +95,20 @@ class DHN(Player):
         prob_dict = {action: p[action] for action in legal_actions}
         return prob_dict
 
-class DHM(Player):
+class DHM:
     """
     Dark hex MCCFR player
     """
-    def __init__(self, num_rows, num_cols, pone, imperfect_recall):
-        self.num_rows = num_rows
-        self.num_cols = num_cols
-        pone_text = "pone" if pone else "npone"
-        ir = "ir" if imperfect_recall else "pr"
-        self.player_info = f"{pone_text}_{ir}"
+    def __init__(self, player_info, policy):
+        self.player_info = player_info
         self.p_type = "mccfr"
-        f"tmp/Arena/arena_{self.p_type}_{num_rows}x{num_cols}_{self.player_info}/dark_hex_mccfr_solver"
-
-    def read_data(self):
-        with open(self.path, "rb") as file:
-            solver = pickle.load(file)
-        self._policy = solver.average_policy()
+        self.policy = policy
 
     def get_action(self, state):
-        return np.random.choice(list(action_probs.keys()), p=list(action_probs.values()))
-
-    def action_probabilities(self, state, player_id=None):
-        return self._policy.action_probabilities(state)
+        a_p = self.policy.action_probabilities(state)
+        legal_actions = state.legal_actions()
+        a_p = [a_p[a] for a in legal_actions]
+        return np.random.choice(legal_actions, p=a_p)
 
 
 class HandCraftedPlayer(Player):
@@ -127,27 +120,27 @@ class HandCraftedPlayer(Player):
         self.num_cols = num_cols
         self.player_info = f"pone_ir"
         self.p_type = "handcrafted"
+        self.p0_path = p0_path
+        self.p1_path = p1_path
+        super(HandCraftedPlayer, self).__init__(self.p_type, self.player_info)
+        self.read_data()
 
     def read_data(self):
         self._policy = [None, None]
         if self.p0_path:
             with open(self.p0_path, "rb") as file:
                 self._policy[0] = pickle.load(file)
-            actions = [x for x, _ in self._policy[0]]
-            probs = [x for _, x in self._policy[0]]
-            self._policy[0] = dict(zip(actions, probs))
         if self.p1_path:
             with open(self.p1_path, "rb") as file:
                 self._policy[1] = pickle.load(file)
-            actions = [x for x, _ in self._policy[1]]
-            probs = [x for _, x in self._policy[1]]
-            self._policy[1] = dict(zip(actions, probs))
 
     def get_action(self, state):
         cur_player = state.current_player()
         if self._policy[cur_player] is None:
             raise ValueError("No policy for player {}".format(cur_player))
-        action = np.random.choice(list(self._policy[cur_player].keys()), p=list(self._policy[cur_player].values()))
+        policy_for_state = self._policy[cur_player][state.information_state_string()]
+        policy_for_state = {k: v for k, v in policy_for_state}
+        action = np.random.choice(list(policy_for_state.keys()), p=list(policy_for_state.values()))
         return action
         
     def action_probabilities(self, state):

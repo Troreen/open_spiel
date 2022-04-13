@@ -358,13 +358,15 @@ class NFSP(rl_agent.AbstractAgent):
     Args:
       checkpoint_dir: directory from which checkpoints will be restored.
     """
-    # for name, saver in self._savers:
-    #   full_checkpoint_dir = self._full_checkpoint_name(checkpoint_dir, name)
-    #   logging.info("Restoring checkpoint: %s", full_checkpoint_dir)
-    #   saver.restore(self._session, full_checkpoint_dir)
-    # restore using tf2 load_weights
-    self._rl_agent._q_network.load_weights(checkpoint_dir + "/q_network")
-    self._avg_network.load_weights(checkpoint_dir + "/avg_network")
+    if checkpoint_dir[-2:] == "pr":
+      for name, saver in self._savers:
+        full_checkpoint_dir = self._full_checkpoint_name(checkpoint_dir, name)
+        logging.info("Restoring checkpoint: %s", full_checkpoint_dir)
+        saver.restore(self._session, full_checkpoint_dir)
+    else:
+      # restore using tf2 load_weights
+      self._rl_agent._q_network.load_weights(checkpoint_dir + "/q_network")
+      self._avg_network.load_weights(checkpoint_dir + "/avg_network")
 
 
 class ReservoirBuffer(object):

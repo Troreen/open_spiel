@@ -442,8 +442,3 @@ class simpleResNet(Model):
     for layer in self._layers:
       x = layer(x)
     return x
-
-  # def save(self, path):
-  #   """Saves the model to a file"""
-  #   self.save_weights(path)
-    

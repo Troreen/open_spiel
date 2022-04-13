@@ -77,7 +77,7 @@ def main(_):
       print(f"Ep {i}; Rand eval: {_eval}")
 
       print("Persisting the model...")
-      with open(f"{folder_path}/dark_hex_mccfr_solver", "wb") as file:
+      with open(f"{folder_path}/solver.pkl", "wb") as file:
         pickle.dump(solver, file, pickle.HIGHEST_PROTOCOL)
 
       evals.append(_eval)

@@ -171,6 +171,7 @@ set(PYTHON_TESTS ${PYTHON_TESTS}
   algorithms/action_value_test.py
   algorithms/action_value_vs_best_response_test.py
   algorithms/best_response_test.py
+  algorithms/boltzmann_tabular_qlearner_test.py
   algorithms/cfr_br_test.py
   algorithms/cfr_test.py
   algorithms/evaluate_bots_test.py
@@ -180,6 +181,7 @@ set(PYTHON_TESTS ${PYTHON_TESTS}
   algorithms/gambit_test.py
   algorithms/generate_playthrough_test.py
   algorithms/get_all_states_test.py
+  algorithms/mcts_agent_test.py
   algorithms/mcts_test.py
   algorithms/minimax_test.py
   algorithms/noisy_policy_test.py
@@ -188,6 +190,7 @@ set(PYTHON_TESTS ${PYTHON_TESTS}
   algorithms/policy_aggregator_test.py
   algorithms/projected_replicator_dynamics_test.py
   algorithms/random_agent_test.py
+  algorithms/tabular_qlearner_test.py
   bots/bluechip_bridge_test.py
   bots/bluechip_bridge_uncontested_bidding_test.py
   bots/is_mcts_test.py

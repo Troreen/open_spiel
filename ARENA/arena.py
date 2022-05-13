@@ -43,7 +43,6 @@ def play_game(agent0, agent1, num_rows, num_cols):
                 action = agent0.get_action(state_ir_pone)
             else:
                 action = agent0.get_action(state_ir_npone)
-            # print(f"p0 action: {action}")
         else:
             if agent1.player_info == "npone_pr":
                 action = agent1.get_action(state_pr)
@@ -93,9 +92,9 @@ def arena(n):
     ir_obs_size = _ir_game.information_state_tensor_size()
     ir_action_size = _ir_game.num_distinct_actions()
 
-    # with open("tmp/Arena/arena_mccfr_4x3_npone_pr/solver.pkl", "rb") as file:
-    #     solver = pickle.load(file)
-    # npone_pr_policy = solver.average_policy()
+    with open("tmp/Arena/arena_mccfr_4x3_npone_pr/solver.pkl", "rb") as file:
+        solver = pickle.load(file)
+    npone_pr_policy = solver.average_policy()
     with open("tmp/Arena/arena_mccfr_4x3_pone_ir/solver.pkl", "rb") as file:
         solver2 = pickle.load(file)
     pone_ir_policy = solver2.average_policy()
@@ -118,7 +117,7 @@ def arena(n):
                 obs_state_size=ir_obs_size, pone=True, imperfect_recall=True,
                 sess=sess),
             # MCCFR - Perfect Recall
-            # DHM('npone_pr', npone_pr_policy),
+            DHM('npone_pr', npone_pr_policy),
             # MCCFR - Imperfect Recall with no pONE
             DHM('pone_ir', pone_ir_policy),
             # MCCFR - Imperfect Recall with pONE
@@ -126,7 +125,12 @@ def arena(n):
             # Handcrafted - Ryan's Player
             HandCraftedPlayer(num_rows=num_rows, num_cols=num_cols,
                               p0_path="tmp/ryan_player/p0_strategy.pkl",
-                              p1_path="tmp/ryan_player/p1_strategy.pkl")
+                              p1_path="tmp/ryan_player/p1_strategy.pkl"),
+            # Simplified MCCFR
+            HandCraftedPlayer(num_rows=num_rows, num_cols=num_cols,
+                              p0_path="tmp/simplified_mccfr/p0_strategy.pkl",
+                              p1_path="tmp/simplified_mccfr/p1_strategy.pkl",
+                              name="Simplified MCCFR"),
         ]
 
         print("\033[1m\033[33m" + "Starting games..." + "\033[0m")
@@ -143,12 +147,12 @@ def arena(n):
                 records[p1_name]['p0'] += results_p1[0]
                 records[p1_name]['p1'] += results_p1[1]
                 print(f"\033[1m\033[32m" + f"{p0_name} vs {p1_name} finished." + "\033[0m")
-    print(records)
+
     return records
 
 
 if __name__ == "__main__":
-    records = arena(200)
+    records = arena(10000)
 
     # Make 3 different rankings:
     # 1. Wins as p0

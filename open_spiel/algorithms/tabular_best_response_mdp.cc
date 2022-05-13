@@ -101,7 +101,7 @@ double MDP::Solve(double tolerance, TabularPolicy *br_policy) {
             prob = 0.0;
           }
 
-          SPIEL_CHECK_PROB(prob);
+          // SPIEL_CHECK_PROB(prob);
           action_value += prob * child->value();
         }
 

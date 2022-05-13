@@ -105,21 +105,26 @@ class DHM:
         self.policy = policy
 
     def get_action(self, state):
+        a_p = self.action_probabilities(state)
+        return np.random.choice(list(a_p.keys()), p=list(a_p.values()))
+
+    def action_probabilities(self, state, player_id=None):
         a_p = self.policy.action_probabilities(state)
         legal_actions = state.legal_actions()
         a_p = [a_p[a] for a in legal_actions]
-        return np.random.choice(legal_actions, p=a_p)
+        return {a: p for a, p in zip(legal_actions, a_p)}
+        
 
 
 class HandCraftedPlayer(Player):
     """
     Hand crafted player.
     """
-    def __init__(self, num_rows, num_cols, p0_path, p1_path):
+    def __init__(self, num_rows, num_cols, p0_path, p1_path, name="HandCrafted"):
         self.num_rows = num_rows
         self.num_cols = num_cols
         self.player_info = f"pone_ir"
-        self.p_type = "handcrafted"
+        self.p_type = name
         self.p0_path = p0_path
         self.p1_path = p1_path
         super(HandCraftedPlayer, self).__init__(self.p_type, self.player_info)

@@ -104,6 +104,11 @@ def arena(n):
 
     with tf.Session() as sess:
         agents = [
+            # Simplified MCCFR - SIMCAP+
+            HandCraftedPlayer(num_rows=num_rows, num_cols=num_cols,
+                              p0_path="tmp/simplified_mccfr_plus/p0_strategy.pkl",
+                              p1_path="tmp/simplified_mccfr_plus/p1_strategy.pkl",
+                              name="SIMCAP+"),
             # NFSP - Perfect Recall
             DHN(num_rows=num_rows, num_cols=num_cols, num_actions=pr_action_size,
                 obs_state_size=pr_obs_size, pone=False, imperfect_recall=False,
@@ -126,17 +131,17 @@ def arena(n):
             HandCraftedPlayer(num_rows=num_rows, num_cols=num_cols,
                               p0_path="tmp/ryan_player/p0_strategy.pkl",
                               p1_path="tmp/ryan_player/p1_strategy.pkl"),
-            # Simplified MCCFR
+            # Simplified MCCFR - SIMCAP
             HandCraftedPlayer(num_rows=num_rows, num_cols=num_cols,
                               p0_path="tmp/simplified_mccfr/p0_strategy.pkl",
                               p1_path="tmp/simplified_mccfr/p1_strategy.pkl",
-                              name="Simplified MCCFR"),
+                              name="SIMCAP"),
         ]
 
         print("\033[1m\033[33m" + "Starting games..." + "\033[0m")
 
         records = defaultdict(lambda: {'p0': 0, 'p1': 0})   
-        for i in range(len(agents)):
+        for i in range(1):
             for j in range(i + 1, len(agents)):
                 p0_name = f"{agents[i].p_type}_{agents[i].player_info}"
                 p1_name = f"{agents[j].p_type}_{agents[j].player_info}"

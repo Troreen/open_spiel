@@ -138,6 +138,11 @@ class HandCraftedPlayer(Player):
         if self.p1_path:
             with open(self.p1_path, "rb") as file:
                 self._policy[1] = pickle.load(file)
+        
+        if 'strategy' in self._policy[0]:
+            self._policy[0] = self._policy[0]['strategy']
+        if 'strategy' in self._policy[1]:
+            self._policy[1] = self._policy[1]['strategy']
 
     def get_action(self, state):
         cur_player = state.current_player()

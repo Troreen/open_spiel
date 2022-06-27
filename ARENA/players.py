@@ -34,7 +34,7 @@ class DHN(Player):
     
     def __init__(self, num_rows, num_cols, num_actions, 
                  obs_state_size, pone, imperfect_recall,
-                 sess):
+                 sess, name):
         self.sess = sess
         self.num_rows = num_rows
         self.num_cols = num_cols
@@ -47,7 +47,7 @@ class DHN(Player):
             self.model_type = "mlp"
         self.num_actions = num_actions
         self.obs_state_size = obs_state_size
-
+        self.p_name = name
         self.p_type = "nfsp"
         self.player_info = f"{pone_text}_{ir_text}"
         path = f"tmp/Arena/arena_{self.p_type}_{num_rows}x{num_cols}_{self.player_info}"
@@ -95,13 +95,15 @@ class DHN(Player):
         prob_dict = {action: p[action] for action in legal_actions}
         return prob_dict
 
+
 class DHM:
     """
     Dark hex MCCFR player
     """
-    def __init__(self, player_info, policy):
+    def __init__(self, player_info, policy, name):
         self.player_info = player_info
         self.p_type = "mccfr"
+        self.p_name = name
         self.policy = policy
 
     def get_action(self, state):
@@ -113,7 +115,6 @@ class DHM:
         legal_actions = state.legal_actions()
         a_p = [a_p[a] for a in legal_actions]
         return {a: p for a, p in zip(legal_actions, a_p)}
-        
 
 
 class HandCraftedPlayer(Player):
@@ -125,6 +126,7 @@ class HandCraftedPlayer(Player):
         self.num_cols = num_cols
         self.player_info = f"pone_ir"
         self.p_type = name
+        self.p_name = name
         self.p0_path = p0_path
         self.p1_path = p1_path
         super(HandCraftedPlayer, self).__init__(self.p_type, self.player_info)

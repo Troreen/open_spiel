@@ -1,9 +1,10 @@
 Player,Wins
-nfsp_pone_ir,-1.0
-HandCrafted_pone_ir,-1.0
-mccfr_npone_pr,-3.0
-mccfr_pone_ir,-3.0
-Simplified MCCFR_pone_ir,-3.0
-nfsp_npone_pr,-5.0
-mccfr_npone_ir,-5.0
-nfsp_npone_ir,-7.0
+SIMCAP_pone_ir,-2532.0
+mccfr_pone_ir,-2894.0
+mccfr_npone_ir,-2934.0
+HandCrafted_pone_ir,-3918.0
+nfsp_pone_ir,-4624.0
+nfsp_npone_pr,-4662.0
+mccfr_npone_pr,-4722.0
+nfsp_npone_ir,-4782.0
+SIMCAP+_pone_ir,-14570.0

@@ -1,6 +1,11 @@
 import pickle
 import matplotlib.pyplot as plt
 import numpy as np
+import seaborn as sns
+
+
+sns.color_palette("tab10")
+sns.set_style("darkgrid")
 
 
 def compare_results_random(early_terminal, no_early_terminal):
@@ -101,6 +106,31 @@ def compare_results_nashconv_nfsp(early_terminal, no_early_terminal):
     plt.savefig("tmp/nfsp_dark_hex_comparison_nashconv.png")
 
 
+def compare_results_nashconv_nfsp_pr_ir(pr, ir):
+    with open(f"{ir}/game_res.pkl", "rb") as file:
+        ir_res = pickle.load(file)
+    eval_per = ir_res["eval_every"]
+    nash_conv_ir = ir_res["game_res"]
+    
+    with open(f"{pr}/game_res.pkl", "rb") as file:
+        pr_res = pickle.load(file)
+    nash_conv_pr = pr_res["game_res"]
+
+    # plot nfsp nashconv results (single figure)
+    figure = plt.figure()
+    # bold title
+    plt.title('NFSP 2x2 PR vs IR', fontweight='bold')
+    plt.plot(nash_conv_ir, label='Imperfect Recall')
+    plt.plot(nash_conv_pr, label='Perfect Recall')
+    plt.xlabel(f'Iteration (x{eval_per})')
+    plt.ylabel('NashConv')
+    plt.legend()
+    
+    # save
+    plt.tight_layout()
+    plt.savefig("tmp/nfsp_ir_pr_comparison_nashconv.pdf")
+
+
 def compare_vanilla_cfr_ir_pr(pr_path, ir_path):
     with open(pr_path, "rb") as file:
         pr_res = pickle.load(file)
@@ -121,4 +151,4 @@ def compare_vanilla_cfr_ir_pr(pr_path, ir_path):
 
 if __name__ == "__main__":
     # compare_results_nashconv_nfsp("tmp/nfsp_test_2x2_early", "tmp/nfsp_test_2x2_no_early")
-    compare_vanilla_cfr_ir_pr("tmp/dark_hex_cfr_2x2_pr", "tmp/dark_hex_cfr_2x2_ir")
+    compare_results_nashconv_nfsp_pr_ir("tmp/dark_hex_mccfr_3x2_pr", "tmp/dark_hex_mccfr_3x2_ir")

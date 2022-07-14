@@ -19,16 +19,17 @@ def heat_map(df, title_given="Arena", save_path="tmp/Arena/res/arena.pdf"):
     mask = np.zeros_like(df)
     mask[:, num_players] = 1
     mask[num_players, :] = 1
-    sns.heatmap(df, mask=mask, cmap="Reds", annot=True, annot_kws={"size": 11, "color":"g"},
-                xticklabels=df.columns, yticklabels=df.index)
-    sns.heatmap(df, alpha=0, cbar=False, fmt=".0f", annot=True, 
+    plt.subplots(figsize=(10,5))
+    sns.heatmap(df, mask=mask, cmap="Reds", annot=True, annot_kws={"size": 11, "color":"g"}, square=False,
+                xticklabels=df.columns, fmt='g', yticklabels=df.index, linewidths=0.5)
+    sns.heatmap(df, alpha=0, cbar=False, annot=True, square=False,
                 annot_kws={"size": 11, "color":"g"},
-                xticklabels=df.columns, yticklabels=df.index)
-    plt.tick_params(axis='both', which='major', labelsize=10, labelbottom = False, bottom=False, top = False, labeltop=True)
+                xticklabels=df.columns, fmt='g', yticklabels=df.index, linewidths=0.5)
+    plt.tick_params(axis='both', which='major', labelsize=13, labelbottom = False, bottom=False, top = False, labeltop=True)
     plt.xticks(rotation=90)
     plt.title(title_given, fontsize=18)
-    plt.xlabel("Second Player")
-    plt.ylabel("First Player")
+    plt.xlabel("Second Player", fontsize=15)
+    plt.ylabel("First Player", fontsize=15)
     plt.tight_layout()
     plt.savefig(save_path)
 
@@ -177,9 +178,12 @@ def arena(n):
 
 
 if __name__ == "__main__":
-    records = arena(5000)
-    with open("tmp/Arena/res/records.pkl", "wb") as file:
-        pickle.dump(records, file)
+    # records = arena(5000)
+    # with open("tmp/Arena/res/records.pkl", "wb") as file:
+    #     pickle.dump(records, file)
+
+    with open("tmp/Arena/res/records.pkl", "rb") as file:
+        records = pickle.load(file)
 
     # Make 3 different rankings:
     # 1. Wins as p0

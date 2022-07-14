@@ -37,9 +37,9 @@ import time
 FLAGS = flags.FLAGS
 
 flags.DEFINE_integer("iterations", int(5e7), "Number of iterations")
-flags.DEFINE_string("game", "dark_hex_ir", "Name of the game")
+flags.DEFINE_string("game", "dark_hex", "Name of the game")
 flags.DEFINE_integer("players", 2, "Number of players")
-flags.DEFINE_integer("eval_freq", int(5e5), "How often to run evaluation")
+flags.DEFINE_integer("eval_freq", int(5e7), "How often to run evaluation")
 flags.DEFINE_integer("num_eval_games", int(1e4), "Number of games to evaluate")
 
 
@@ -76,13 +76,13 @@ def main(_):
       _eval = run_random_games(game, policy, FLAGS.num_eval_games)
       print(f"Ep {i}; Rand eval: {_eval}")
 
-      print("Persisting the model...")
-      with open(f"{folder_path}/solver.pkl", "wb") as file:
-        pickle.dump(solver, file, pickle.HIGHEST_PROTOCOL)
+  print("Persisting the model...")
+  with open(f"{folder_path}/solver.pkl", "wb") as file:
+    pickle.dump(solver, file, pickle.HIGHEST_PROTOCOL)
 
-      evals.append(_eval)
-      with open(f"{folder_path}/eval.pkl", "wb") as file:
-        pickle.dump(evals, file, pickle.HIGHEST_PROTOCOL)
+  evals.append(_eval)
+  with open(f"{folder_path}/eval.pkl", "wb") as file:
+    pickle.dump(evals, file, pickle.HIGHEST_PROTOCOL)
 
 
 def run_random_games(game, policy, num_games):

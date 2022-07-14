@@ -243,6 +243,8 @@ class MeanFieldRoutingGameTest(absltest.TestCase):
     """Check that a vehicle cannot choose to move if it cannot move yet."""
     # TODO(cabannes): test apply_actions().
 
+  @absltest.skip(
+      "Test of OMD on Sioux Falls is disabled as it takes a long time to run.")
   def test_online_mirror_descent_sioux_falls_dummy(self):
     """Test that online mirror descent can be used on the Sioux Falls game."""
     mfg_game = factory.create_game_with_setting(

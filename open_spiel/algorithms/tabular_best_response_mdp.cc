@@ -252,6 +252,11 @@ void TabularBestResponseMDP::BuildMDPs(
       node = mdps_.at(player)->LookupOrCreateNode(node_key);
       double opponent_reach = OpponentReach(reach_probs, player);
 
+      if (opponent_reach == -1) {
+        // Opponent_reach -1 for single player partial strategies means
+        // that the action is not reachable.
+        opponent_reach = 0.0;
+      }
       SPIEL_CHECK_GE(opponent_reach, 0.0);
       SPIEL_CHECK_LE(opponent_reach, 1.0);
       node->add_weight(opponent_reach);
@@ -278,6 +283,12 @@ void TabularBestResponseMDP::BuildMDPs(
       // Otherwise, only at opponent nodes.
       if (only_for_player == kInvalidPlayer || only_for_player != player) {
         double action_prob = GetProb(state_policy, action);
+        if (action_prob == -1) {
+          // For single player partial policies, the action prob of -1
+          // indicates that the action is not in the policy.
+          // We set the reach prob to 0.
+          action_prob = 0.0;
+        }
         SPIEL_CHECK_PROB(action_prob);
         new_reach_probs[player] *= action_prob;
       }
@@ -362,6 +373,7 @@ TabularBestResponseMDPInfo TabularBestResponseMDP::ComputeBestResponses() {
 
 TabularBestResponseMDPInfo
 TabularBestResponseMDP::ComputeBestResponse(Player max_player) {
+  // max_player is the best-response player.
   TabularBestResponseMDPInfo br_info(num_players_);
 
   if (mdps_.empty()) {

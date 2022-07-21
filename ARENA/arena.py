@@ -111,9 +111,9 @@ def arena(n):
     ir_obs_size = _ir_game.information_state_tensor_size()
     ir_action_size = _ir_game.num_distinct_actions()
 
-    with open("tmp/Arena/arena_mccfr_4x3_npone_pr/solver.pkl", "rb") as file:
-        solver = pickle.load(file)
-    npone_pr_policy = solver.average_policy()
+    # with open("tmp/Arena/arena_mccfr_4x3_npone_pr/solver.pkl", "rb") as file:
+    #     solver = pickle.load(file)
+    # npone_pr_policy = solver.average_policy()
     with open("tmp/Arena/arena_mccfr_4x3_pone_ir/solver.pkl", "rb") as file:
         solver2 = pickle.load(file)
     pone_ir_policy = solver2.average_policy()
@@ -141,7 +141,7 @@ def arena(n):
                 obs_state_size=ir_obs_size, pone=True, imperfect_recall=True,
                 sess=sess, name="NFSP-IR-p"),
             # MCCFR - Perfect Recall
-            DHM('npone_pr', npone_pr_policy, name="MCCFR-PR"),
+            # DHM('npone_pr', npone_pr_policy, name="MCCFR-PR"),
             # MCCFR - Imperfect Recall with no pONE
             DHM('pone_ir', pone_ir_policy, name="MCCFR-IR"),
             # MCCFR - Imperfect Recall with pONE
@@ -178,12 +178,12 @@ def arena(n):
 
 
 if __name__ == "__main__":
-    # records = arena(5000)
-    # with open("tmp/Arena/res/records.pkl", "wb") as file:
-    #     pickle.dump(records, file)
+    records = arena(5000)
+    with open("tmp/Arena/res/records.pkl", "wb") as file:
+        pickle.dump(records, file)
 
-    with open("tmp/Arena/res/records.pkl", "rb") as file:
-        records = pickle.load(file)
+    # with open("tmp/Arena/res/records.pkl", "rb") as file:
+    #     records = pickle.load(file)
 
     # Make 3 different rankings:
     # 1. Wins as p0

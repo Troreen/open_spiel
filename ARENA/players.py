@@ -102,6 +102,7 @@ class DHM:
     """
     def __init__(self, player_info, policy, name):
         self.player_info = player_info
+        self.p_name = name
         self.p_type = "mccfr"
         self.p_name = name
         self.policy = policy
@@ -121,9 +122,10 @@ class HandCraftedPlayer(Player):
     """
     Hand crafted player.
     """
-    def __init__(self, num_rows, num_cols, p0_path, p1_path, name="HandCrafted"):
+    def __init__(self, num_rows, num_cols, p0_path, p1_path, name):
         self.num_rows = num_rows
         self.num_cols = num_cols
+        self.p_name = name
         self.player_info = f"pone_ir"
         self.p_type = name
         self.p_name = name

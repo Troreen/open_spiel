@@ -21,6 +21,19 @@ class DHM:
         a_p = [a_p[a] for a in legal_actions]
         return np.random.choice(legal_actions, p=a_p)
 
+class HumanPlayer:
+    
+    def __init__(self, name):
+        self.p_name = name
+        
+    def get_action(self, state, get_probs=False):
+        legal_actions = state.legal_actions()
+        print("Legal actions:", legal_actions)
+        a = int(input("Enter action: "))
+        while a not in legal_actions:
+            print("Invalid action... Legal actions:", legal_actions)
+            a = int(input("Enter action: "))
+        return a, None
 
 class HandCraftedPlayer:
     """
@@ -41,16 +54,19 @@ class HandCraftedPlayer:
             with open(self.p1_path, "rb") as file:
                 self._policy[1] = pickle.load(file)
 
-    def get_action(self, state):
+    def get_action(self, state, get_probs=False):
         cur_player = state.current_player()
         if self._policy[cur_player] is None:
             raise ValueError("No policy for player {}".format(cur_player))
         policy_for_state = self._policy[cur_player][state.information_state_string()]
         policy_for_state = {k: v for k, v in policy_for_state}
         action = np.random.choice(list(policy_for_state.keys()), p=list(policy_for_state.values()))
-        return action
+        if get_probs:
+            return action, policy_for_state
+        return action, None
         
     def action_probabilities(self, state):
         if self._policy[state.current_player()] is None:
             raise ValueError("No policy for player {}".format(state.current_player()))
         return self._policy[state.current_player()]
+

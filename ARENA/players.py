@@ -34,7 +34,7 @@ class DHN(Player):
     
     def __init__(self, num_rows, num_cols, num_actions, 
                  obs_state_size, pone, imperfect_recall,
-                 sess):
+                 sess, name):
         self.sess = sess
         self.num_rows = num_rows
         self.num_cols = num_cols
@@ -48,6 +48,7 @@ class DHN(Player):
         self.num_actions = num_actions
         self.obs_state_size = obs_state_size
 
+        self.p_name = name
         self.p_type = "nfsp"
         self.player_info = f"{pone_text}_{ir_text}"
         path = f"tmp/Arena/arena_{self.p_type}_{num_rows}x{num_cols}_{self.player_info}"
@@ -99,8 +100,9 @@ class DHM:
     """
     Dark hex MCCFR player
     """
-    def __init__(self, player_info, policy):
+    def __init__(self, player_info, policy, name):
         self.player_info = player_info
+        self.p_name = name
         self.p_type = "mccfr"
         self.policy = policy
 
@@ -115,9 +117,10 @@ class HandCraftedPlayer(Player):
     """
     Hand crafted player.
     """
-    def __init__(self, num_rows, num_cols, p0_path, p1_path):
+    def __init__(self, num_rows, num_cols, p0_path, p1_path, name):
         self.num_rows = num_rows
         self.num_cols = num_cols
+        self.p_name = name
         self.player_info = f"pone_ir"
         self.p_type = "handcrafted"
         self.p0_path = p0_path

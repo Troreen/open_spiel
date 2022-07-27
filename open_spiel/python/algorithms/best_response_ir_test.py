@@ -102,7 +102,7 @@ def test_best_response_for_partial_ir_policy():
 
 def test_br_strategy_full_size():
   start = time.time()
-  file_path = "tmp/phantom_ttt_p0_simplified.pkl"
+  file_path = "tmp/phantom_ttt_p1_simplified.pkl"
   data = dill.load(open(file_path, "rb"))
   game = pyspiel.load_game("phantom_ttt_ir")
   player_id = data["player"]
@@ -118,5 +118,28 @@ def test_br_strategy_full_size():
   report(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss, 'memory')
 
 
+def test_br_strategy_large_game():
+  start = time.time()
+  file_path = "../darkhex/darkhex/data/strategy_data/4x3_mccfr/p1_2_0.2_0.0_0/game_info.pkl"
+#   file_path = "../darkhex/darkhex/data/strategy_data/4x3_1_def/game_info.pkl"
+  data = dill.load(open(file_path, "rb"))
+  # print data["strategy"] to a file
+  with open("tmp/strategy.txt", "w") as f:
+    for k, v in data["strategy"].items():
+      f.write(k + " " + str(v) + "\n")
+  game = pyspiel.load_game("dark_hex_ir(num_rows=4,num_cols=3,use_early_terminal=True)")
+  player_id = data["player"]
+  pyspiel_policy = policy.PartialTabularPolicy(
+      game, policy=data["strategy"], player=player_id)
+  br = best_response.BestResponsePolicyIR(
+      game, policy=pyspiel_policy, player_id=1-player_id)
+  state_test = game.new_initial_state()
+  # state_test.apply_action(0)
+  br_pi = br.value(state_test)
+  print(br_pi)
+  report(time.time() - start, 'time')
+  report(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss, 'memory')
+
 # test_best_response_for_partial_ir_policy()
-test_br_strategy_full_size()
+# test_br_strategy_full_size()
+test_br_strategy_large_game()

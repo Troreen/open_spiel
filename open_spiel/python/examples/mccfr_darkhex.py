@@ -36,12 +36,12 @@ import time
 
 FLAGS = flags.FLAGS
 
-flags.DEFINE_integer("iterations", int(1e6), "Number of iterations")
-flags.DEFINE_string("game", "dark_hex", "Name of the game")
+flags.DEFINE_integer("iterations", int(1e7), "Number of iterations")
+flags.DEFINE_string("game", "dark_hex_ir", "Name of the game")
 flags.DEFINE_integer("players", 2, "Number of players")
 flags.DEFINE_integer("eval_freq", int(1e8), "How often to run evaluation")
 flags.DEFINE_integer("num_eval_games", int(1e3), "Number of games to evaluate")
-flags.DEFINE_boolean("pone", False, "Whether to use pone")
+flags.DEFINE_boolean("pone", True, "Whether to use pone")
 
 
 def main(_):

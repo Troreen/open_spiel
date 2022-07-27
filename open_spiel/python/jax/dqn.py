@@ -13,10 +13,6 @@
 # limitations under the License.
 """DQN agent implemented in JAX."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 import collections
 
 import haiku as hk
@@ -192,7 +188,7 @@ class DQN(rl_agent.AbstractAgent):
       if self._step_counter % self._update_target_network_every == 0:
         # state_dict method returns a dictionary containing a whole state of the
         # module.
-        self.params_target_q_network = jax.tree_multimap(
+        self.params_target_q_network = jax.tree_map(
             lambda x: x.copy(), self.params_q_network)
 
       if self._prev_timestep and add_transition_record:

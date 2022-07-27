@@ -23,6 +23,8 @@ set(GAME_SOURCES
   bridge_uncontested_bidding.h
   catch.cc
   catch.h
+  checkers.cc
+  checkers.h
   chess.cc
   chess.h
   chess/chess_board.cc
@@ -52,10 +54,16 @@ set(GAME_SOURCES
   dark_hex.h
   deep_sea.cc
   deep_sea.h
+  dynamic_routing/dynamic_routing_data.cc
+  dynamic_routing/dynamic_routing_data.h
+  dynamic_routing/dynamic_routing_utils.cc
+  dynamic_routing/dynamic_routing_utils.h
   efg_game.cc
   efg_game.h
   efg_game_data.cc
   efg_game_data.h
+  euchre.cc
+  euchre.h
   first_sealed_auction.cc
   first_sealed_auction.h
   gin_rummy.cc
@@ -86,6 +94,8 @@ set(GAME_SOURCES
   lewis_signaling.h
   liars_dice.cc
   liars_dice.h
+  mancala.cc
+  mancala.h
   markov_soccer.cc
   markov_soccer.h
   matching_pennies_3p.cc
@@ -95,6 +105,8 @@ set(GAME_SOURCES
   mfg/crowd_modelling.h
   mfg/crowd_modelling_2d.cc
   mfg/crowd_modelling_2d.h
+  mfg/dynamic_routing.cc
+  mfg/dynamic_routing.h
   mfg/garnet.cc
   mfg/garnet.h
   morpion_solitaire.cc
@@ -103,6 +115,8 @@ set(GAME_SOURCES
   negotiation.h
   nfg_game.cc
   nfg_game.h
+  nim.cc
+  nim.h
   oh_hell.cc
   oh_hell.h
   oshi_zumo.cc
@@ -278,6 +292,10 @@ add_executable(catch_test catch_test.cc ${OPEN_SPIEL_OBJECTS}
                $<TARGET_OBJECTS:tests>)
 add_test(catch_test catch_test)
 
+add_executable(checkers_test checkers_test.cc ${OPEN_SPIEL_OBJECTS}
+               $<TARGET_OBJECTS:tests>)
+add_test(checkers_test checkers_test)
+
 add_executable(chess_test chess_test.cc ${OPEN_SPIEL_OBJECTS}
                $<TARGET_OBJECTS:tests>)
 add_test(chess_test chess_test)
@@ -343,9 +361,25 @@ add_executable(deep_sea_test deep_sea_test.cc ${OPEN_SPIEL_OBJECTS}
                $<TARGET_OBJECTS:tests>)
 add_test(deep_sea_test deep_sea_test)
 
+add_executable(dynamic_routing_data_test dynamic_routing/dynamic_routing_data_test.cc ${OPEN_SPIEL_OBJECTS}
+               $<TARGET_OBJECTS:tests>)
+add_test(dynamic_routing_data_test dynamic_routing_data_test)
+
+add_executable(dynamic_routing_test mfg/dynamic_routing_test.cc ${OPEN_SPIEL_OBJECTS}
+               $<TARGET_OBJECTS:tests>)
+add_test(dynamic_routing_test dynamic_routing_test)
+
+add_executable(dynamic_routing_utils_test dynamic_routing/dynamic_routing_utils_test.cc ${OPEN_SPIEL_OBJECTS}
+               $<TARGET_OBJECTS:tests>)
+add_test(dynamic_routing_utils_test dynamic_routing_utils_test)
+
 add_executable(efg_game_test efg_game_test.cc ${OPEN_SPIEL_OBJECTS}
                $<TARGET_OBJECTS:tests>)
 add_test(efg_game_test efg_game_test)
+
+add_executable(euchre_test euchre_test.cc ${OPEN_SPIEL_OBJECTS}
+               $<TARGET_OBJECTS:tests>)
+add_test(euchre_test euchre_test)
 
 add_executable(first_sealed_auction_test first_sealed_auction_test.cc
                ${OPEN_SPIEL_OBJECTS}
@@ -403,6 +437,10 @@ add_executable(liars_dice_test liars_dice_test.cc ${OPEN_SPIEL_OBJECTS}
                $<TARGET_OBJECTS:algorithms>)
 add_test(liars_dice_test liars_dice_test)
 
+add_executable(mancala_test mancala_test.cc ${OPEN_SPIEL_OBJECTS}
+               $<TARGET_OBJECTS:tests>)
+add_test(mancala_test mancala_test)
+
 add_executable(markov_soccer_test markov_soccer_test.cc ${OPEN_SPIEL_OBJECTS}
                $<TARGET_OBJECTS:tests>
                $<TARGET_OBJECTS:algorithms>)
@@ -431,6 +469,10 @@ add_executable(nfg_game_test nfg_game_test.cc ${OPEN_SPIEL_OBJECTS}
                $<TARGET_OBJECTS:tests>
                $<TARGET_OBJECTS:algorithms>)
 add_test(nfg_game_test nfg_game_test)
+
+add_executable(nim_test nim_test.cc ${OPEN_SPIEL_OBJECTS}
+               $<TARGET_OBJECTS:tests>)
+add_test(nim_test nim_test)
 
 add_executable(oh_hell_test oh_hell_test.cc ${OPEN_SPIEL_OBJECTS}
                $<TARGET_OBJECTS:tests>)

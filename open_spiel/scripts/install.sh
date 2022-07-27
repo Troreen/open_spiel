@@ -107,13 +107,21 @@ fi
 
 DIR="open_spiel/abseil-cpp"
 if [[ ! -d ${DIR} ]]; then
-  cached_clone -b '20211102.0' --single-branch --depth 1 https://github.com/abseil/abseil-cpp.git open_spiel/abseil-cpp
+  cached_clone -b '20211102.0' --single-branch --depth 1 https://github.com/abseil/abseil-cpp.git ${DIR}
+fi
+
+DIR="open_spiel/pybind11_abseil"
+if [[ ! -d ${DIR} ]]; then
+  cached_clone -b 'master' https://github.com/pybind/pybind11_abseil.git ${DIR}
+  pushd ${DIR}
+  git checkout '73992b5'
+  popd
 fi
 
 # Optional dependencies.
 DIR="open_spiel/games/hanabi/hanabi-learning-environment"
 if [[ ${OPEN_SPIEL_BUILD_WITH_HANABI:-"ON"} == "ON" ]] && [[ ! -d ${DIR} ]]; then
-  cached_clone -b 'master' --single-branch --depth 15 https://github.com/deepmind/hanabi-learning-environment.git ${DIR}
+  cached_clone -b 'master' https://github.com/deepmind/hanabi-learning-environment.git ${DIR}
   # We checkout a specific CL to prevent future breakage due to changes upstream
   # The repository is very infrequently updated, thus the last 15 commits should
   # be ok for a long time.

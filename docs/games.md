@@ -11,27 +11,31 @@ Status                                       | Game
 -------------------------------------------- | ----
 <font color="orange"><b>~</b></font>         | [Amazons](#amazons)
 ![](_static/green_circ10.png "green circle") | [Backgammon](#backgammon)
+<font color="orange"><b>~</b></font>         | [Bargaining](#bargaining)
 <font color="orange"><b>~</b></font>         | [Battleship](#battleship)
 <font color="orange"><b>~</b></font>         | [Blackjack](#blackjack)
 ![](_static/green_circ10.png "green circle") | [Breakthrough](#breakthrough)
 ![](_static/green_circ10.png "green circle") | [Bridge](#bridge)
 ![](_static/green_circ10.png "green circle") | [(Uncontested) Bridge bidding](#uncontested-bridge-bidding)
 <font color="orange"><b>~</b></font>         | [Catch](#catch)
+<font color="orange"><b>~</b></font>         | [Checkers](#checkers)
 <font color="orange"><b>~</b></font>         | [Cliff Walking](#cliff-walking)
 <font color="orange"><b>~</b></font>         | [Clobber](#clobber)
 <font color="orange"><b>~</b></font>         | [Coin Game](#coin-game)
+<font color="orange"><b>~</b></font>         | [Colored Trails](#colored-trails)
 ![](_static/green_circ10.png "green circle") | [Connect Four](#connect-four)
 <font color="orange"><b>~</b></font>         | [Cooperative Box-Pushing](#cooperative-box-pushing)
 ![](_static/green_circ10.png "green circle") | [Chess](#chess)
 <font color="orange"><b>~</b></font>         | [Dark Hex](#dark-hex)
 <font color="orange"><b>~</b></font>         | [Deep Sea](#deep-sea)
+<font color="orange"><b>~</b></font>         | [Euchre](#euchre)
 ![](_static/green_circ10.png "green circle") | [First-price Sealed-Bid Auction](#first-price-sealed-bid-auction)
 ![](_static/green_circ10.png "green circle") | [Gin Rummy](#gin-rummy)
 ![](_static/green_circ10.png "green circle") | [Go](#go)
 ![](_static/green_circ10.png "green circle") | [Goofspiel](#goofspiel)
 ![](_static/green_circ10.png "green circle") | [Hanabi](#hanabi)
 ![](_static/green_circ10.png "green circle") | [Havannah](#havannah)
-<font color="orange"><b>~</b></font>         | [Hearts](#hearts)
+![](_static/green_circ10.png "green circle") | [Hearts](#hearts)
 <font color="orange"><b>~</b></font>         | [Hex](#hex)
 <font color="orange"><b>~</b></font>         | [Kriegspiel](#Kriegspiel)
 ![](_static/green_circ10.png "green circle") | [Kuhn poker](#kuhn-poker)
@@ -39,6 +43,7 @@ Status                                       | Game
 ![](_static/green_circ10.png "green circle") | [Leduc poker](#leduc-poker)
 <font color="orange"><b>~</b></font>         | [Lewis Signaling](#lewis-signaling)
 ![](_static/green_circ10.png "green circle") | [Liar's Dice](#liars-dice)
+<font color="orange"><b>~</b></font>         | [Mancala](#mancala)
 <font color="orange"><b>~</b></font>         | [Markov Soccer](#markov-soccer)
 ![](_static/green_circ10.png "green circle") | [Matching Pennies (Three-player)](#matching-pennies-three-player)
 ![](_static/green_circ10.png "green circle") | [Mean Field Game : garnet](#mean_field_game_garnet)
@@ -49,6 +54,7 @@ Status                                       | Game
 ![](_static/green_circ10.png "green circle") | [Mean Field Game : routing](#mean-field-game--routing)
 <font color="orange"><b>~</b></font>         | [Morpion Solitaire (4D)](#morpion-solitaire-4d)
 ![](_static/green_circ10.png "green circle") | [Negotiation](#negotiation)
+<font color="orange"><b>~</b></font>         | [Nim](#nim)
 <font color="orange"><b>X</b></font>         | [Oh Hell](#oh-hell)
 ![](_static/green_circ10.png "green circle") | [Oshi-Zumo](#oshi-zumo)
 ![](_static/green_circ10.png "green circle") | [Oware](#oware)
@@ -92,6 +98,16 @@ Status                                       | Game
 *   Perfect information.
 *   2 players.
 *   [Wikipedia](https://en.wikipedia.org/wiki/Backgammon)
+
+### Bargaining
+
+*   Agents negotiate for items in a pool with different (hidden) valuations.
+*   Research game.
+*   Non-deterministic (randomized pool and valuations).
+*   Imperfect information.
+*   2 players.
+*   [Lewis et al. '17](https://arxiv.org/abs/1706.05125),
+    [DeVault et al. '15](https://www.aaai.org/ocs/index.php/SSS/SSS15/paper/viewFile/10335/10100)
 
 ### Battleship
 
@@ -158,6 +174,17 @@ Status                                       | Game
 *   1 players.
 *   [Mnih et al. 2014, Recurrent Models of Visual Attention](https://papers.nips.cc/paper/5542-recurrent-models-of-visual-attention.pdf),<br>[Osband et al '19, Behaviour Suite for Reinforcement Learning, Appendix A](https://arxiv.org/abs/1908.03568)
 
+### Checkers
+
+*   Players move pieces around the board with the goal of eliminating the
+    opposing pieces.
+*   Pieces on a grid.
+*   Traditional game.
+*   Deterministic.
+*   Perfect information.
+*   2 players.
+*   [Wikipedia](https://en.wikipedia.org/wiki/Checkers)
+
 ### Cliff Walking
 
 *   Agent must find goal without falling off a cliff. Designed to demonstrate
@@ -187,10 +214,24 @@ Status                                       | Game
 *   Agents on a grid.
 *   Research game.
 *   Non-deterministic.
-*   Perfect, incomplete information.
+*   Imperfect information (all players see the grid and their own preferences,
+    but not the preferences of other players).
 *   2 players.
 *   [Raileanu et al. '18, Modeling Others using Oneself in Multi-Agent
     Reinforcement Learning](https://arxiv.org/abs/1802.09640)
+
+### Colored Trails
+
+*   Agents negotiations for chips that they they play on a colored grid to move
+    closer to the goal.
+*   Agents on a grid.
+*   Research game.
+*   Non-deterministic (randomized board & chip configuration).
+*   Imperfect information.
+*   3 players.
+*   [Ya'akov et al. '10](https://dash.harvard.edu/handle/1/4726287),
+    [Fecici & Pfeffer '08](https://dl.acm.org/doi/10.5555/1402383.1402431),
+    [de Jong et al. '11](https://www.ifaamas.org/Proceedings/aamas2011/papers/C4_R57.pdf)
 
 ### Connect Four
 
@@ -245,6 +286,16 @@ Status                                       | Game
 *   Perfect information.
 *   1 players.
 *   [Osband et al. '17, Deep Exploration via Randomized Value Functions](https://arxiv.org/abs/1703.07608)
+
+### Euchre
+
+*   Trick-taking card game where players compete in pairs.
+*   Card game.
+*   Traditional game.
+*   Non-deterministic.
+*   Imperfect information.
+*   4 players.
+*   [Wikipedia](https://en.wikipedia.org/wiki/Euchre)
 
 ### First-price Sealed-Bid Auction
 
@@ -400,6 +451,17 @@ Status                                       | Game
 *   2 players.
 *   [Wikipedia](https://en.wikipedia.org/wiki/Liar%27s_dice)
 
+### Mancala
+
+*   Players take turns sowing beans on the board and try to capture more beans
+    than the opponent.
+*   Idiosyncratic format.
+*   Traditional game.
+*   Deterministic.
+*   Perfect information.
+*   2 players.
+*   [Wikipedia](https://en.wikipedia.org/wiki/Kalah)
+
 ### Markov Soccer
 
 *   Agents must take the ball to their goal, and can 'tackle' the opponent by
@@ -472,6 +534,17 @@ Status                                       | Game
 *   2 players.
 *   [Lewis et al. '17](https://arxiv.org/abs/1706.05125),
     [Cao et al. '18](https://arxiv.org/abs/1804.03980)
+
+### Nim
+
+*   Two agents take objects from distinct piles trying to either avoid taking
+    the last one or take it. Any positive number of objects can be taken on each
+    turn given they all come from the same pile.
+*   Traditional mathematical game.
+*   Deterministic.
+*   Perfect information.
+*   2 players.
+*   [Wikipedia](https://en.wikipedia.org/wiki/Nim)
 
 ### Oh Hell
 

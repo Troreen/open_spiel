@@ -75,6 +75,7 @@ endif()
 
 
 # List of all Python bindings to add to pyspiel.
+include_directories (../pybind11_abseil ../../pybind11/include)
 set(PYTHON_BINDINGS ${PYTHON_BINDINGS}
   pybind11/algorithms_corr_dist.cc
   pybind11/algorithms_corr_dist.h
@@ -84,10 +85,14 @@ set(PYTHON_BINDINGS ${PYTHON_BINDINGS}
   pybind11/bots.h
   pybind11/games_backgammon.cc
   pybind11/games_backgammon.h
+  pybind11/games_bargaining.cc
+  pybind11/games_bargaining.h
   pybind11/games_bridge.cc
   pybind11/games_bridge.h
   pybind11/games_chess.cc
   pybind11/games_chess.h
+  pybind11/games_euchre.cc
+  pybind11/games_euchre.h
   pybind11/games_kuhn_poker.cc
   pybind11/games_kuhn_poker.h
   pybind11/games_leduc_poker.cc
@@ -106,6 +111,8 @@ set(PYTHON_BINDINGS ${PYTHON_BINDINGS}
   pybind11/pyspiel.cc
   pybind11/python_games.cc
   pybind11/python_games.h
+  pybind11/utils.cc
+  pybind11/utils.h
   )
 
 if (OPEN_SPIEL_BUILD_WITH_HIGC)
@@ -189,6 +196,8 @@ set(PYTHON_TESTS ${PYTHON_TESTS}
   algorithms/projected_replicator_dynamics_test.py
   algorithms/random_agent_test.py
   algorithms/tabular_qlearner_test.py
+  algorithms/sequence_form_utils_test.py
+  algorithms/mmd_dilated_test.py
   bots/bluechip_bridge_test.py
   bots/bluechip_bridge_uncontested_bidding_test.py
   bots/is_mcts_test.py
@@ -212,7 +221,9 @@ set(PYTHON_TESTS ${PYTHON_TESTS}
   mfg/games/dynamic_routing_test.py
   tests/mfg_implementation_test/mfg_test.py
   tests/bot_test.py
+  tests/game_transforms_test.py
   tests/games_bridge_test.py
+  tests/games_euchre_test.py
   tests/games_sim_test.py
   tests/policy_test.py
   tests/pyspiel_test.py
@@ -245,6 +256,7 @@ if (OPEN_SPIEL_ENABLE_PYTORCH)
       pytorch/eva_pytorch_test.py
       pytorch/losses/rl_losses_pytorch_test.py
       pytorch/policy_gradient_pytorch_test.py
+      pytorch/neurd_pytorch_test.py
   )
 endif()
 
@@ -283,8 +295,11 @@ if (OPEN_SPIEL_ENABLE_PYTHON_MISC)
       algorithms/double_oracle_test.py
       algorithms/jpsro_test.py
       algorithms/lp_solver_test.py
+      algorithms/nash_averaging_test.py
       algorithms/response_graph_ucb_test.py
       algorithms/sequence_form_lp_test.py
+      algorithms/stackelberg_lp_test.py
+      algorithms/tabular_multiagent_qlearner.py
       algorithms/value_iteration_test.py
       egt/alpharank_test.py
       egt/alpharank_visualizer_test.py

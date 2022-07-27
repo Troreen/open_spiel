@@ -13,10 +13,6 @@
 # limitations under the License.
 """DQN agent implemented in JAX."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 import collections
 
 import haiku as hk
@@ -33,6 +29,8 @@ Transition = collections.namedtuple(
     "Transition",
     "info_state action reward next_info_state is_final_step legal_actions_mask")
 
+# Penalty for illegal actions in action selection. In epsilon-greedy, this will
+# prevent them from being selected.
 ILLEGAL_ACTION_LOGITS_PENALTY = -1e9
 
 
@@ -58,7 +56,8 @@ class DQN(rl_agent.AbstractAgent):
                optimizer_str="sgd",
                loss_str="mse",
                huber_loss_parameter=1.0,
-               seed=42):
+               seed=42,
+               gradient_clipping=None):
     """Initialize the DQN agent."""
 
     # This call to locals() is used to store every argument used to initialize
@@ -114,14 +113,21 @@ class DQN(rl_agent.AbstractAgent):
           rlax.huber_loss(x, self.huber_loss_parameter))
     else:
       raise ValueError("Not implemented, choose from 'mse', 'huber'.")
+
     if optimizer_str == "adam":
-      opt_init, opt_update = optax.chain(
-          optax.scale_by_adam(b1=0.9, b2=0.999, eps=1e-8),
-          optax.scale(learning_rate))
+      optimizer = optax.adam(learning_rate)
     elif optimizer_str == "sgd":
-      opt_init, opt_update = optax.sgd(learning_rate)
+      optimizer = optax.sgd(learning_rate)
     else:
       raise ValueError("Not implemented, choose from 'adam' and 'sgd'.")
+
+    # Clipping the gradients prevent divergence and allow more stable training.
+    if gradient_clipping:
+      optimizer = optax.chain(optimizer,
+                              optax.clip_by_global_norm(gradient_clipping))
+
+    opt_init, opt_update = optimizer.init, optimizer.update
+
     self._opt_update_fn = self._get_update_func(opt_update)
     self._opt_state = opt_init(self.params_q_network)
     self._loss_and_grad = jax.value_and_grad(self._loss, has_aux=False)
@@ -182,7 +188,7 @@ class DQN(rl_agent.AbstractAgent):
       if self._step_counter % self._update_target_network_every == 0:
         # state_dict method returns a dictionary containing a whole state of the
         # module.
-        self.params_target_q_network = jax.tree_multimap(
+        self.params_target_q_network = jax.tree_map(
             lambda x: x.copy(), self.params_q_network)
 
       if self._prev_timestep and add_transition_record:
@@ -267,8 +273,12 @@ class DQN(rl_agent.AbstractAgent):
 
     q_values = self.hk_network.apply(param, info_states)
     target_q_values = self.hk_network.apply(param_target, next_info_states)
-
-    max_next_q = jnp.max(target_q_values + jnp.log(legal_actions_mask), axis=-1)
+    # Sum a large negative constant to illegal action logits before taking the
+    # max. This prevents illegal action values from being considered as target.
+    max_next_q = jnp.max(
+        target_q_values +
+        (1 - legal_actions_mask) * ILLEGAL_ACTION_LOGITS_PENALTY,
+        axis=-1)
     max_next_q = jax.numpy.where(
         1 - are_final_steps, x=max_next_q, y=jnp.zeros_like(max_next_q))
     target = (

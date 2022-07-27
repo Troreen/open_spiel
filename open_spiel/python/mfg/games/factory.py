@@ -50,12 +50,26 @@ GAME_SETTINGS = {
         "network": "line",
         "time_step_length": 1.0,
     },
+    "dynamic_routing_sioux_falls_dummy_demand": {
+        "max_num_time_step": 81,
+        "network": "sioux_falls_dummy_demand",
+        "time_step_length": 0.5,
+    },
+    "dynamic_routing_sioux_falls": {
+        # TODO(cabannes): change these values based on experiment output.
+        "max_num_time_step": 81,
+        "network": "sioux_falls",
+        "time_step_length": 0.5,
+    },
     # Predator and prey game.
     "predator_prey_5x5x3": {},
+    # Linear-quadratic game.
+    "linear_quadratic": {}
 }
 
 # Default settings for the games.
 GAME_SETTINGS.update({
+    "mean_field_lin_quad": GAME_SETTINGS["linear_quadratic"],
     "mfg_crowd_modelling_2d": GAME_SETTINGS["crowd_modelling_2d_10x10"],
     "python_mfg_dynamic_routing": GAME_SETTINGS["dynamic_routing_line"],
     "python_mfg_predator_prey": GAME_SETTINGS["predator_prey_5x5x3"],
@@ -66,6 +80,11 @@ _DYNAMIC_ROUTING_NETWORK = {
              dynamic_routing_data.LINE_NETWORK_OD_DEMAND),
     "braess": (dynamic_routing_data.BRAESS_NETWORK,
                dynamic_routing_data.BRAESS_NETWORK_OD_DEMAND),
+    "sioux_falls_dummy_demand":
+        (dynamic_routing_data.SIOUX_FALLS_NETWORK,
+         dynamic_routing_data.SIOUX_FALLS_DUMMY_OD_DEMAND),
+    "sioux_falls": (dynamic_routing_data.SIOUX_FALLS_NETWORK,
+                    dynamic_routing_data.SIOUX_FALLS_OD_DEMAND)
 }
 
 

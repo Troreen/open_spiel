@@ -14,10 +14,6 @@
 
 """Tests for open_spiel.python.jax.dqn."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 from absl.testing import absltest
 
 from open_spiel.python import rl_environment
@@ -47,7 +43,8 @@ class DQNTest(absltest.TestCase):
                     replay_buffer_capacity=100,
                     batch_size=5,
                     epsilon_start=0.02,
-                    epsilon_end=0.01)
+                    epsilon_end=0.01,
+                    gradient_clipping=1.0)
     total_reward = 0
 
     for _ in range(100):

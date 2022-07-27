@@ -36,17 +36,18 @@ import time
 
 FLAGS = flags.FLAGS
 
-flags.DEFINE_integer("iterations", int(5e7), "Number of iterations")
+flags.DEFINE_integer("iterations", int(1e6), "Number of iterations")
 flags.DEFINE_string("game", "dark_hex", "Name of the game")
 flags.DEFINE_integer("players", 2, "Number of players")
-flags.DEFINE_integer("eval_freq", int(5e7), "How often to run evaluation")
-flags.DEFINE_integer("num_eval_games", int(1e4), "Number of games to evaluate")
+flags.DEFINE_integer("eval_freq", int(1e8), "How often to run evaluation")
+flags.DEFINE_integer("num_eval_games", int(1e3), "Number of games to evaluate")
+flags.DEFINE_boolean("pone", False, "Whether to use pone")
 
 
 def main(_):
   num_rows = 4
   num_cols = 3
-  pone = True
+  pone = FLAGS.pone
   if FLAGS.game == "dark_hex_ir":
     ir_text = "ir"
     pone_text = "pone" if pone else "npone"

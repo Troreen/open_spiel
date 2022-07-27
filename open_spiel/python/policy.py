@@ -578,3 +578,87 @@ def merge_tabular_policies(tabular_policies, game):
         merged_policy.action_probability_array[to_index] = (
             tabular_policies[p].action_probability_array[from_index])
   return merged_policy
+
+
+class PartialTabularPolicy(Policy):
+  """Policy implementation where the policy is in explicit tabular form.
+  Expanding from the TabularPolicy class, this class allows for partial
+  policies, where some states(s) are not defined given that s will never
+  be visited.
+
+  In addition to implementing the `Policy` interface, this class exposes
+  details of the policy representation for easy manipulation.
+
+  The states are guaranteed to be grouped by player, which can simplify
+  code for users of this class, i.e. `action_probability_array` contains
+  states for player 0 first, followed by states for player 1, etc.
+
+  The policy uses `state.information_state_string` as the keys if available,
+  otherwise `state.observation_string`.
+
+  Usages: todo: document
+
+  Attributes: todo: document
+  """
+
+  def __init__(self,
+               game,
+               policy, # python dict of infostate -> (action, prob)
+               player, # single player that the policy is for
+               ):
+    """Initializes a uniform random policy for all players in the game."""
+    super().__init__(game, [player])
+    self.player = player
+    self.state_lookup = {}
+    legal_actions_list = []
+    state_in_list = []
+    state_index = 0
+    for info_state, _ in policy.items():
+      key = info_state
+      if key not in self.state_lookup:
+        self.state_lookup[key] = state_index
+        state_index += 1
+    
+    self.policy_dict = {
+        key: { # change to state_lookup[key]
+            action: prob
+            for action, prob in action_probs
+        } for key, action_probs in policy.items() 
+    }
+    
+
+  def _state_key(self, state):
+    """Returns the key to use to look up this (state, player) pair."""
+    return state.information_state_string(self.player)
+
+  def action_probabilities(self, state, player_id=None):
+    """Returns an {action: probability} dict, covering all legal actions."""
+    return self.policy_for_key(self._state_key(state))
+
+  def state_index(self, state):
+    """Returns the index in the TabularPolicy associated to `state`."""
+    return self.state_lookup[self._state_key(state)]
+
+  def policy_for_key(self, key):
+    """Returns the policy as a vector given a state key string.
+
+    Args:
+      key: A key for the specified state.
+
+    Returns:
+      A vector of probabilities, one per action. This is a slice of the
+      backing policy array, and so slice or index assignment will update the
+      policy. For example:
+      ```
+      tabular_policy.policy_for_key(s)[:] = [0.1, 0.5, 0.4]
+      ```
+    """
+    return self.policy_dict[key]
+
+  def to_dict(self):
+    """Returns a single dictionary representing the tabular policy.
+
+    Returns:
+      A dictionary of string keys to lists of (action, prob) pairs.
+    """
+    return self.policy_dict

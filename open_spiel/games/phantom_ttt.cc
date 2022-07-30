@@ -65,7 +65,7 @@ const GameType kImperfectRecallGameType{
     /*max_num_players=*/2,
     /*min_num_players=*/2,
     /*provides_information_state_string=*/true,
-    /*provides_information_state_tensor=*/false,
+    /*provides_information_state_tensor=*/true,
     /*provides_observation_string=*/false,
     /*provides_observation_tensor=*/false,
     /*parameter_specification=*/

@@ -12,10 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Approximate Best Response using Deep Q-Network."""
-
-from absl import app
-from absl import flags
-from absl import logging
 import numpy as np
 import pickle
 import tqdm
@@ -85,7 +81,6 @@ class ApproximateBestResponseDQN:
         list(action_probs.keys()), p=list(action_probs.values()))
 
   def eval_against_pi(self, agent):
-    """Evaluates `trained_agents` against `random_agents` for `num_episodes`."""
     sum_episode_rewards = 0.0
     for _ in range(self.num_eval_games):
       time_step = self.env.reset()
@@ -148,6 +143,7 @@ class ApproximateBestResponseDQN:
         # Episode is over, step all agents with final info state.
         agent.step(time_step)
       agent.save(self.checkpoint_dir)
+      self.agent = agent
       # save the mean rewards
       # with open(self.checkpoint_dir + "/mean_rewards.pkl", "wb") as f:
       #   pickle.dump(mean_rewards, f)
@@ -161,13 +157,39 @@ class ApproximateBestResponseDQN:
     plt.ylabel("Mean episode rewards")
     plt.savefig(self.checkpoint_dir + "/mean_rewards.png")
 
+  def get_best_response(self):
+    """ Using the calculated strategy and the evaluation policy,
+    returns the probability that evaluation policy will win. """
+    state = self.game.new_initial_state()
+    win_prob = 0.0
+    self._play_game(state, win_prob)
+    return win_prob
+
+  def _play_game(self, state):
+    if state.is_terminal():
+      return state.returns()[self.player_id]
+    win_prob = 0.0
+    if state.current_player() == self.player_id:
+      for action, prob in self._get_action_probabilities(state).items():
+        next_state = state.child(action)
+        win_prob += prob * self._play_game(next_state)
+    else:
+      info_state = state.information_state_string()
+      p = self.agent.step(info_state, is_evaluation=True).probs
+      prob_dict = {action: p[action] for action in state.legal_actions()}
+      for action, prob in prob_dict.items():
+        next_state = state.child(action)
+        win_prob += prob * self._play_game(next_state)
+    return win_prob
+
+
 
 if __name__ == "__main__":
   # game = "phantom_ttt_ir"
   # with open("tmp/phantom_ttt_p0_simplified_9a_0.1eps.pkl", "rb") as f:
   #   data = pickle.load(f)
 
-  with open("../darkhex/darkhex/data/strategy_data/4x3_1_def/game_info.pkl",
+  with open("../darkhex/darkhex/data/strategy_data/4x3_0_def/game_info.pkl",
             "rb") as f:
     data = pickle.load(f)
   num_cols = data["num_cols"]
@@ -178,3 +200,4 @@ if __name__ == "__main__":
   policy = data["strategy"]
   abr = ApproximateBestResponseDQN(game, evaluation_player, policy)
   abr.approximate_best_response()
+  print(abr.get_best_response())

@@ -36,10 +36,10 @@ import time
 
 FLAGS = flags.FLAGS
 
-flags.DEFINE_integer("iterations", int(1e7), "Number of iterations")
+flags.DEFINE_integer("iterations", int(1e9), "Number of iterations")
 flags.DEFINE_string("game", "dark_hex_ir", "Name of the game")
 flags.DEFINE_integer("players", 2, "Number of players")
-flags.DEFINE_integer("eval_freq", int(1e8), "How often to run evaluation")
+flags.DEFINE_integer("eval_freq", int(1e9), "How often to run evaluation")
 flags.DEFINE_integer("num_eval_games", int(1e3), "Number of games to evaluate")
 flags.DEFINE_boolean("pone", True, "Whether to use pone")
 
@@ -61,7 +61,7 @@ def main(_):
                   "num_cols": num_cols}
   game = pyspiel.load_game(FLAGS.game, parameters)
   
-  folder_path = f"tmp/Arena/arena_mccfr_{num_rows}x{num_cols}_{pone_text}_{ir_text}"
+  folder_path = f"tmp/Arena/arena_mccfr_{num_rows}x{num_cols}_{pone_text}_{ir_text}_{FLAGS.iterations}"
   # create folder if it doesn't exist
   if not os.path.exists(folder_path):
     os.makedirs(folder_path)
@@ -71,7 +71,7 @@ def main(_):
   cur_time = time.time()
   for i in tqdm(range(FLAGS.iterations)):
     solver.run_iteration()
-    if i % FLAGS.eval_freq == 0:
+    if i % FLAGS.eval_freq == 0 or i == FLAGS.iterations - 1:
       policy = solver.average_policy()
 
       _eval = run_random_games(game, policy, FLAGS.num_eval_games)

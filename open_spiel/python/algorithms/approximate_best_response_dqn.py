@@ -23,6 +23,7 @@ import tensorflow.compat.v1 as tf
 
 from open_spiel.python import rl_environment
 from open_spiel.python.algorithms import dqn
+import pyspiel
 
 
 class ApproximateBestResponseDQN:
@@ -36,7 +37,7 @@ class ApproximateBestResponseDQN:
       save_every=int(1e5),
       num_train_episodes=int(1e6),
       eval_every=int(1e4),
-      num_eval_games=int(1e4),
+      num_eval_games=int(1e5),
       hidden_layers_sizes=[128, 128],
       replay_buffer_capacity=int(1e5),
       batch_size=32,
@@ -55,7 +56,7 @@ class ApproximateBestResponseDQN:
       replay_buffer_capacity: Size of the replay buffer.
       batch_size: Number of transitions to sample at each learning step.
     """
-    self.env = rl_environment.Environment(game, use_tensor_observation=False)
+    self.env = rl_environment.Environment(game, include_full_state=True)
     self.eval_id = eval_id
     self.br_id = 1 - self.eval_id
     self.eval_policy = eval_policy
@@ -67,14 +68,19 @@ class ApproximateBestResponseDQN:
     self.hidden_layers_sizes = hidden_layers_sizes
     self.replay_buffer_capacity = replay_buffer_capacity
     self.batch_size = batch_size
+    self.policy_uses_dict = isinstance(eval_policy, dict)
 
-  def _get_action_probabilities(self, info_state):
-    a_p = self.eval_policy[info_state[self.eval_id]]
-    return {a: p for a, p in a_p}
+  def _get_action_probabilities(self, state):
+    if self.policy_uses_dict:
+      info_state = state.information_state_string(self.eval_id)
+      a_p = self.eval_policy[info_state]
+      return {a: p for a, p in a_p}
+    return self.eval_policy.action_probabilities(state)
 
   def _get_action_from_pi(self, time_step):
-    info_state = time_step.observations["info_state_str"]
-    action_probs = self._get_action_probabilities(info_state)
+    _, state = pyspiel.deserialize_game_and_state(
+        time_step.observations["serialized_state"])
+    action_probs = self._get_action_probabilities(state)
     return np.random.choice(
         list(action_probs.keys()), p=list(action_probs.values()))
 
@@ -116,12 +122,12 @@ class ApproximateBestResponseDQN:
       sess.run(tf.global_variables_initializer())
 
       mean_rewards = []
-      for ep in tqdm.tqdm(range(self.num_train_episodes)):
+      for ep in range(self.num_train_episodes):
         if (ep + 1) % self.eval_every == 0 or ep in [
-            0, self.num_train_episodes - 1
+            self.num_train_episodes - 1#, 0
         ]:
           r_mean = self.eval_against_pi(agent)
-          print("[%s] Mean episode rewards %s", ep + 1, r_mean)
+          print(f"[{ep + 1}] Mean episode rewards {r_mean}")
           mean_rewards.append(r_mean)
         if (ep + 1) % self.save_every == 0:
           agent.save(self.checkpoint_dir)
@@ -143,9 +149,10 @@ class ApproximateBestResponseDQN:
         agent.step(time_step)
       agent.save(self.checkpoint_dir)
       # save the mean rewards
-      with open(self.checkpoint_dir + "/mean_rewards.pkl", "wb") as f:
-        pickle.dump(mean_rewards, f)
-      self._plot_rewards(mean_rewards)
+      # with open(self.checkpoint_dir + "/mean_rewards.pkl", "wb") as f:
+      #   pickle.dump(mean_rewards, f)
+      # self._plot_rewards(mean_rewards)
+      return mean_rewards[-1]
 
   def _plot_rewards(self, mean_rewards):
     import matplotlib.pyplot as plt

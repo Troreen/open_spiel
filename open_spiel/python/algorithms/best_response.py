@@ -511,10 +511,23 @@ class BestResponsePolicyIR(openspiel_policy.Policy):
       supplied state.
     """
     if player_id is None:
-      if state.is_simultaneous_node():
-        player_id = self._player_id
-      else:
-        player_id = state.current_player()
+      player_id = state.current_player()
+    if player_id == self._player_id:
+      return self._policy
     return {
         self.best_response_action(state.information_state_string(player_id)): 1
     }
+
+  def get_best_response(self):
+    """ Using the calculated strategy and the evaluation policy,
+    returns the probability that evaluation policy will win. """
+    return self._play_game(self._root_state)
+
+  def _play_game(self, state):
+    if state.is_terminal():
+      return state.returns()[self._player_id]
+    win_prob = 0.0
+    for action, prob in self.action_probabilities(state).items():
+      next_state = state.child(action)
+      win_prob += prob * self._play_game(next_state)
+    return win_prob

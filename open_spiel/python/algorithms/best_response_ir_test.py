@@ -149,8 +149,7 @@ def test_br_strategy_large_game():
                                             player_id=1 - player_id)
     state_test = game.new_initial_state()
     # state_test.apply_action(0)
-    br_val = br.value(state_test)
-    print(br_val)
+    br_val = br.get_best_response()
     report(time.time() - start, 'time')
     report(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss, 'memory')
     # save the data to a file

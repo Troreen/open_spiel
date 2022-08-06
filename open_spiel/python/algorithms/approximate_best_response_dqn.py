@@ -94,7 +94,7 @@ class ApproximateBestResponseDQN:
 
   def eval_against_pi(self, agent):
     sum_episode_rewards = 0.0
-    for _ in range(self.num_eval_games):
+    for _ in tqdm.tqdm(range(self.num_eval_games), desc="Evaluating against pi"):
       time_step = self.env.reset()
       episode_rewards = 0
       while not time_step.last():
@@ -132,8 +132,8 @@ class ApproximateBestResponseDQN:
       for ep in tqdm.tqdm(range(self.num_train_episodes)):
         if (ep + 1) % self.eval_every == 0 or ep in [0, self.num_train_episodes - 1]:
           r_mean = self.eval_against_pi(agent)
-          print(f"[{ep + 1}] Mean episode rewards {r_mean}")
-          mean_rewards.append(r_mean)
+          print(f"[{ep + 1}] Mean episode rewards for best_response {-r_mean}")
+          mean_rewards.append(-r_mean)
         if (ep + 1) % self.save_every == 0:
           agent.save(self.checkpoint_dir)
 
@@ -158,7 +158,7 @@ class ApproximateBestResponseDQN:
       with open(self.checkpoint_dir + "/mean_rewards.pkl", "wb") as f:
         pickle.dump(mean_rewards, f)
       self._plot_rewards(mean_rewards)
-      return mean_rewards[-1]
+      return -mean_rewards[-1]
 
   # def restore_and_get_best_response(self):
   #   """ Restores the agent from the checkpoint. """
@@ -207,7 +207,7 @@ if __name__ == "__main__":
     save_every=num_episodes,
     num_train_episodes=num_episodes,
     eval_every=num_episodes,
-    num_eval_games=int(1e6)
+    num_eval_games=int(1e4)
   )
   abr_val = abr.approximate_best_response()
   print((1 + abr_val) / 2) 

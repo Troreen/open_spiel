@@ -129,14 +129,14 @@ def test_br_strategy_full_size():
 
 def test_br_strategy_large_game():
     start = time.time()
-    folder = "p1_2_0.1_0.05_20"
+    # folder = "p1_2_0.1_0.05_20"
     # folder = "p1_3_0.1_0.03_15"
-    file_path = f"../darkhex/darkhex/data/strategy_data/4x3_mccfr/{folder}/game_info.pkl"
-    # folder = "4x3_0_def"
-    # file_path = f"../darkhex/darkhex/data/strategy_data/{folder}/game_info.pkl"
+    # file_path = f"../darkhex/darkhex/data/strategy_data/4x3_mccfr/{folder}/game_info.pkl"
+    folder = "4x3_0_def"
+    file_path = f"../darkhex/darkhex/data/strategy_data/{folder}/game_info.pkl"
     import os
-    if not os.path.exists(f"tmp/{folder}"):
-        os.makedirs(f"tmp/{folder}")
+    if not os.path.exists(f"tmp/real_br/{folder}"):
+        os.makedirs(f"tmp/real_br/{folder}")
     data = dill.load(open(file_path, "rb"))
     game = pyspiel.load_game(
         "dark_hex_ir(num_rows=4,num_cols=3,use_early_terminal=True)")
@@ -149,14 +149,15 @@ def test_br_strategy_large_game():
                                             player_id=1 - player_id)
     state_test = game.new_initial_state()
     # state_test.apply_action(0)
-    br_val = br.get_best_response()
+    br_val, br_strategy = br.get_best_response()
+    print(f"Lower bound value: {br_val}")
     report(time.time() - start, 'time')
     report(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss, 'memory')
     # save the data to a file
-    with open(f"tmp/{folder}/br_data.pkl", "wb") as f:
+    with open(f"tmp/real_br/{folder}/br_data.pkl", "wb") as f:
         data = {
-            "info_sets": br.info_sets,
             "br_value": br_val,
+            "br_strategy": br_strategy,
         }
         dill.dump(data, f)
 

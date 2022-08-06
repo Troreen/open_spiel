@@ -16,6 +16,7 @@ import numpy as np
 import pickle
 import tqdm
 import tensorflow.compat.v1 as tf
+import os
 
 from open_spiel.python import rl_environment
 from open_spiel.python.algorithms import dqn
@@ -61,6 +62,8 @@ class ApproximateBestResponseDQN:
     self.eval_id = eval_id
     self.br_id = 1 - self.eval_id
     self.eval_policy = eval_policy
+    if not os.path.exists(checkpoint_dir):
+      os.makedirs(checkpoint_dir)
     self.checkpoint_dir = checkpoint_dir
     self.save_every = save_every
     self.num_train_episodes = num_train_episodes
@@ -104,7 +107,7 @@ class ApproximateBestResponseDQN:
           agent_output = agent.step(time_step, is_evaluation=True)
           action = agent_output.action
         time_step = self.env.step([action])
-        episode_rewards += time_step.rewards[self.br_id]
+        episode_rewards += time_step.rewards[self.eval_id]
       sum_episode_rewards += episode_rewards
     return sum_episode_rewards / self.num_eval_games
 
@@ -127,7 +130,7 @@ class ApproximateBestResponseDQN:
 
       mean_rewards = []
       for ep in tqdm.tqdm(range(self.num_train_episodes)):
-        if (ep + 1) % self.eval_every == 0 or ep == self.num_train_episodes - 1:
+        if (ep + 1) % self.eval_every == 0 or ep in [0, self.num_train_episodes - 1]:
           r_mean = self.eval_against_pi(agent)
           print(f"[{ep + 1}] Mean episode rewards {r_mean}")
           mean_rewards.append(r_mean)
@@ -157,21 +160,21 @@ class ApproximateBestResponseDQN:
       self._plot_rewards(mean_rewards)
       return mean_rewards[-1]
 
-  def restore_and_get_best_response(self):
-    """ Restores the agent from the checkpoint. """
-    with tf.Session() as sess:
-      agent = dqn.DQN(
-          session=sess,
-          player_id=self.br_id,
-          state_representation_size=self.env.observation_spec()["info_state"][0],
-          num_actions=self.env.action_spec()["num_actions"],
-          hidden_layers_sizes=self.hidden_layers_sizes,
-          replay_buffer_capacity=self.replay_buffer_capacity,
-          batch_size=self.batch_size)
-      agent.restore(self.checkpoint_dir)
-      self.agent = agent
-      print("Restored agent from checkpoint.")
-      return self.get_best_response()
+  # def restore_and_get_best_response(self):
+  #   """ Restores the agent from the checkpoint. """
+  #   with tf.Session() as sess:
+  #     agent = dqn.DQN(
+  #         session=sess,
+  #         player_id=self.br_id,
+  #         state_representation_size=self.env.observation_spec()["info_state"][0],
+  #         num_actions=self.env.action_spec()["num_actions"],
+  #         hidden_layers_sizes=self.hidden_layers_sizes,
+  #         replay_buffer_capacity=self.replay_buffer_capacity,
+  #         batch_size=self.batch_size)
+  #     agent.restore(self.checkpoint_dir)
+  #     self.agent = agent
+  #     print("Restored agent from checkpoint.")
+  #     return self.get_approximate_best_response()
 
   def _plot_rewards(self, mean_rewards):
     import matplotlib.pyplot as plt
@@ -180,45 +183,13 @@ class ApproximateBestResponseDQN:
     plt.ylabel("Mean episode rewards")
     plt.savefig(self.checkpoint_dir + "/mean_rewards.png")
 
-  def get_best_response(self):
-    """ Using the calculated strategy and the evaluation policy,
-    returns the probability that evaluation policy will win. """
-    self._obs = {
-        "info_state": [None] * 2,
-        "legal_actions": [None] * 2
-    }
-    return self._play_game(self.game.new_initial_state())
-
-  def _play_game(self, state):
-    if state.is_terminal():
-      return state.returns()[self.eval_id]
-    win_prob = 0.0
-    if state.current_player() == self.eval_id:
-      for action, prob in self._get_action_probabilities(state).items():
-        next_state = state.child(action)
-        win_prob += prob * self._play_game(next_state)
-    else:
-      self._obs["current_player"] = self.br_id
-      self._obs["info_state"][self.br_id] = (
-          state.information_state_tensor(self.br_id))
-      self._obs["legal_actions"][self.br_id] = state.legal_actions()
-      info_state = rl_environment.TimeStep(
-        observations=self._obs, rewards=None, discounts=None, step_type=None)
-      p = self.agent.step(info_state, is_evaluation=True).probs
-      prob_dict = {action: p[action] for action in state.legal_actions()}
-      for action, prob in prob_dict.items():
-        next_state = state.child(action)
-        win_prob += prob * self._play_game(next_state)
-    return win_prob
-
-
 
 if __name__ == "__main__":
   # game = "phantom_ttt_ir"
   # with open("tmp/phantom_ttt_p0_simplified_9a_0.1eps.pkl", "rb") as f:
   #   data = pickle.load(f)
 
-  with open("../darkhex/darkhex/data/strategy_data/4x3_0_def/game_info.pkl",
+  with open("../darkhex/darkhex/data/strategy_data/4x3_1_def/game_info.pkl",
             "rb") as f:
     data = pickle.load(f)
   num_cols = data["num_cols"]
@@ -232,11 +203,11 @@ if __name__ == "__main__":
     game=game,
     eval_policy=policy,
     eval_id=evaluation_player,
-    checkpoint_dir="tmp/abr/4x3_0_def",
+    checkpoint_dir="tmp/abr/4x3_1_def",
     save_every=num_episodes,
     num_train_episodes=num_episodes,
     eval_every=num_episodes,
-    num_eval_games=int(1e4)
+    num_eval_games=int(1e6)
   )
-  # abr.approximate_best_response()
-  print(abr.restore_and_get_best_response()) 
+  abr_val = abr.approximate_best_response()
+  print((1 + abr_val) / 2) 

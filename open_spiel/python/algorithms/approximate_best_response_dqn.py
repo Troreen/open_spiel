@@ -52,7 +52,11 @@ class ApproximateBestResponseDQN:
       replay_buffer_capacity: Size of the replay buffer.
       batch_size: Number of transitions to sample at each learning step.
     """
-    self.env = rl_environment.Environment(game, include_full_state=True)
+    self.policy_uses_dict = isinstance(eval_policy, dict)
+    if self.policy_uses_dict:
+      self.env = rl_environment.Environment(game)
+    else:
+      self.env = rl_environment.Environment(game, include_full_state=True)
     self.eval_id = eval_id
     self.br_id = 1 - self.eval_id
     self.eval_policy = eval_policy
@@ -64,7 +68,6 @@ class ApproximateBestResponseDQN:
     self.hidden_layers_sizes = hidden_layers_sizes
     self.replay_buffer_capacity = replay_buffer_capacity
     self.batch_size = batch_size
-    self.policy_uses_dict = isinstance(eval_policy, dict)
 
   def _get_action_probabilities(self, state):
     if self.policy_uses_dict:
@@ -74,9 +77,14 @@ class ApproximateBestResponseDQN:
     return self.eval_policy.action_probabilities(state)
 
   def _get_action_from_pi(self, time_step):
-    _, state = pyspiel.deserialize_game_and_state(
-        time_step.observations["serialized_state"])
-    action_probs = self._get_action_probabilities(state)
+    if not self.policy_uses_dict:
+      _, state = pyspiel.deserialize_game_and_state(
+          time_step.observations["serialized_state"])
+      action_probs = self._get_action_probabilities(state)
+    else:
+      info_state = time_step.observations["info_state_str"]
+      action_probs = self.eval_policy[info_state[self.eval_id]]
+      action_probs = {a: p for a, p in action_probs}
     return np.random.choice(
         list(action_probs.keys()), p=list(action_probs.values()))
 
@@ -117,10 +125,8 @@ class ApproximateBestResponseDQN:
       sess.run(tf.global_variables_initializer())
 
       mean_rewards = []
-      for ep in range(self.num_train_episodes):
-        if (ep + 1) % self.eval_every == 0 or ep in [
-            self.num_train_episodes - 1#, 0
-        ]:
+      for ep in tqdm.tqdm(range(self.num_train_episodes)):
+        if (ep + 1) % self.eval_every == 0 or ep == self.num_train_episodes - 1:
           r_mean = self.eval_against_pi(agent)
           print(f"[{ep + 1}] Mean episode rewards {r_mean}")
           mean_rewards.append(r_mean)
@@ -145,9 +151,9 @@ class ApproximateBestResponseDQN:
       agent.save(self.checkpoint_dir)
       self.agent = agent
       # save the mean rewards
-      # with open(self.checkpoint_dir + "/mean_rewards.pkl", "wb") as f:
-      #   pickle.dump(mean_rewards, f)
-      # self._plot_rewards(mean_rewards)
+      with open(self.checkpoint_dir + "/mean_rewards.pkl", "wb") as f:
+        pickle.dump(mean_rewards, f)
+      self._plot_rewards(mean_rewards)
       return mean_rewards[-1]
 
   def _plot_rewards(self, mean_rewards):
@@ -189,7 +195,7 @@ if __name__ == "__main__":
   # with open("tmp/phantom_ttt_p0_simplified_9a_0.1eps.pkl", "rb") as f:
   #   data = pickle.load(f)
 
-  with open("../darkhex/darkhex/data/strategy_data/4x3_0_def/game_info.pkl",
+  with open("../darkhex/darkhex/data/strategy_data/4x3_1_def/game_info.pkl",
             "rb") as f:
     data = pickle.load(f)
   num_cols = data["num_cols"]
@@ -198,6 +204,16 @@ if __name__ == "__main__":
 
   evaluation_player = data["player"]
   policy = data["strategy"]
-  abr = ApproximateBestResponseDQN(game, evaluation_player, policy)
+  num_episodes = int(1e6)
+  abr = ApproximateBestResponseDQN(
+    game=game,
+    eval_policy=policy,
+    eval_id=evaluation_player,
+    checkpoint_dir="tmp/abr/4x3_1_def",
+    save_every=num_episodes,
+    num_train_episodes=num_episodes,
+    eval_every=num_episodes,
+    num_eval_games=int(1e4)
+  )
   abr.approximate_best_response()
   print(abr.get_best_response())

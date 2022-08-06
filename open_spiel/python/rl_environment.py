@@ -235,6 +235,7 @@ class Environment(object):
         "legal_actions": [],
         "current_player": [],
         "serialized_state": [],
+        "info_state_str": [],
     }
     rewards = []
     step_type = StepType.LAST if self._state.is_terminal() else StepType.MID
@@ -246,6 +247,9 @@ class Environment(object):
       observations["info_state"].append(
           self._state.observation_tensor(player_id) if self._use_observation
           else self._state.information_state_tensor(player_id))
+      observations["info_state_str"].append(
+          self._state.observation_string(player_id) if self._use_observation
+          else self._state.information_state_string(player_id))
       observations["legal_actions"].append(self._state.legal_actions(player_id))
     observations["current_player"] = self._state.current_player()
     discounts = self._discounts
@@ -344,11 +348,15 @@ class Environment(object):
         "legal_actions": [],
         "current_player": [],
         "serialized_state": [],
+        "info_state_str": [],
     }
     for player_id in range(self.num_players):
       observations["info_state"].append(
           self._state.observation_tensor(player_id) if self._use_observation
           else self._state.information_state_tensor(player_id))
+      observations["info_state_str"].append(
+          self._state.observation_string(player_id) if self._use_observation
+          else self._state.information_state_string(player_id))
       observations["legal_actions"].append(self._state.legal_actions(player_id))
     observations["current_player"] = self._state.current_player()
 

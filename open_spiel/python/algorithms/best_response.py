@@ -512,8 +512,8 @@ class BestResponsePolicyIR(openspiel_policy.Policy):
     """
     if player_id is None:
       player_id = state.current_player()
-    if player_id == self._player_id:
-      return self._policy
+    if player_id != self._player_id:
+      return self._policy.action_probabilities(state)
     return {
         self.best_response_action(state.information_state_string(player_id)): 1
     }
@@ -521,13 +521,19 @@ class BestResponsePolicyIR(openspiel_policy.Policy):
   def get_best_response(self):
     """ Using the calculated strategy and the evaluation policy,
     returns the probability that evaluation policy will win. """
-    return self._play_game(self._root_state)
+    self.tabular_pi = {}
+    br_res = self._play_game(self._root_state)
+    br_res = (1 + br_res) / 2
+    return br_res, self.tabular_pi
 
   def _play_game(self, state):
     if state.is_terminal():
-      return state.returns()[self._player_id]
+      return state.returns()[1-self._player_id] # get the value of the evaluated player
     win_prob = 0.0
-    for action, prob in self.action_probabilities(state).items():
+    a_p = self.action_probabilities(state).items()
+    if state.current_player() == self._player_id:
+      self.tabular_pi[state.information_state_string()] = a_p
+    for action, prob in a_p:
       next_state = state.child(action)
       win_prob += prob * self._play_game(next_state)
     return win_prob

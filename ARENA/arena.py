@@ -12,26 +12,7 @@ import seaborn as sns
 from collections import defaultdict
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2' 
 import tensorflow.compat.v1 as tf
-
-sns.set_style("darkgrid")
-
-def heat_map(df, title_given="Arena", save_path="tmp/Arena/res/arena.pdf"):
-    mask = np.zeros_like(df)
-    mask[:, num_players] = 1
-    mask[num_players, :] = 1
-    plt.subplots(figsize=(10,5))
-    sns.heatmap(df, mask=mask, cmap="Reds", annot=True, annot_kws={"size": 11, "color":"g"}, square=False,
-                xticklabels=df.columns, fmt='g', yticklabels=df.index, linewidths=0.5)
-    sns.heatmap(df, alpha=0, cbar=False, annot=True, square=False,
-                annot_kws={"size": 11, "color":"g"},
-                xticklabels=df.columns, fmt='g', yticklabels=df.index, linewidths=0.5)
-    plt.tick_params(axis='both', which='major', labelsize=13, labelbottom = False, bottom=False, top = False, labeltop=True)
-    plt.xticks(rotation=90)
-    plt.title(title_given, fontsize=18)
-    plt.xlabel("Second Player", fontsize=15)
-    plt.ylabel("First Player", fontsize=15)
-    plt.tight_layout()
-    plt.savefig(save_path)
+from heat_map import heat_map_driver
 
 
 def play_game(agent0, agent1, num_rows, num_cols):
@@ -125,8 +106,8 @@ def arena(n):
         agents = [
             # Simplified MCCFR - SIMCAP+
             HandCraftedPlayer(num_rows=num_rows, num_cols=num_cols,
-                              p0_path="tmp/simplified_mccfr_plus/p0_strategy.pkl",
-                              p1_path="tmp/simplified_mccfr_plus/p1_strategy.pkl",
+                              p0_path="tmp/Arena/simcap+/p0_strategy.pkl",
+                              p1_path="tmp/Arena/simcap+/p1_strategy.pkl",
                               name="SIMCAP+"),
             # NFSP - Perfect Recall
             DHN(num_rows=num_rows, num_cols=num_cols, num_actions=pr_action_size,
@@ -141,20 +122,20 @@ def arena(n):
                 obs_state_size=ir_obs_size, pone=True, imperfect_recall=True,
                 sess=sess, name="NFSP-IR-p"),
             # MCCFR - Perfect Recall
-            # DHM('npone_pr', npone_pr_policy, name="MCCFR-PR"),
+            DHM('npone_pr', npone_pr_policy, name="MCCFR-PR"),
             # MCCFR - Imperfect Recall with no pONE
             DHM('pone_ir', pone_ir_policy, name="MCCFR-IR"),
             # MCCFR - Imperfect Recall with pONE
             DHM('npone_ir', npone_ir_policy, name="MCCFR-IR-p"),
             # Handcrafted - Ryan's Player
             HandCraftedPlayer(num_rows=num_rows, num_cols=num_cols,
-                              p0_path="tmp/ryan_player/p0_strategy.pkl",
-                              p1_path="tmp/ryan_player/p1_strategy.pkl",
+                              p0_path="tmp/Arena/ryan_player/p0_strategy.pkl",
+                              p1_path="tmp/Arena/ryan_player/p1_strategy.pkl",
                               name="HP"),
             # Simplified MCCFR - SIMCAP
             HandCraftedPlayer(num_rows=num_rows, num_cols=num_cols,
-                              p0_path="tmp/simplified_mccfr/p0_strategy.pkl",
-                              p1_path="tmp/simplified_mccfr/p1_strategy.pkl",
+                              p0_path="tmp/Arena/simcap/p0_strategy.pkl",
+                              p1_path="tmp/Arena/simcap/p1_strategy.pkl",
                               name="SIMCAP"),
         ]
 
@@ -185,40 +166,10 @@ if __name__ == "__main__":
     # with open("tmp/Arena/res/records.pkl", "rb") as file:
     #     records = pickle.load(file)
 
-    # Make 3 different rankings:
-    # 1. Wins as p0
-    # 2. Wins as p1
-    # 3. Wins as p0 and p1
-    # Sort the players for each ranking and save the results to a csv file.
-
-    # generate 2d array for the rankings
-    player_names = list(records.keys())
-    num_players = len(player_names)
-    df = pd.DataFrame(index=player_names + ["(-)Total"], columns=player_names + ["Total"], dtype=int)
-    for i in range(num_players):
-        for j in range(num_players):
-            if i == j:
-                df.iloc[i, j] = 0
-                continue
-            p0_name = player_names[i]
-            p1_name = player_names[j]
-            p0_wins = records[p0_name][p1_name]
-            df.iloc[i, j] = p0_wins
-    
-    # calculate the totals
-    for i in range(num_players):
-        df.iloc[i, num_players] = df.iloc[i, :].sum()
-    for j in range(num_players):
-        df.iloc[num_players, j] = -df.iloc[:, j].sum()
-    df.iloc[num_players, num_players] = df['Total'].sum()
-
-    # sort the players
-    df_sorted = df.sort_values(by=df.columns[num_players], ascending=False)
-    player_names.sort(key=lambda x: df_sorted[x]["(-)Total"], reverse=True)
-    df_sorted = df_sorted.reindex(player_names + ["Total"], axis=1)
-
-    # Save the results to a csv file
-    if not os.path.exists("tmp/Arena/res/"):
-        os.makedirs("tmp/Arena/res/")
-
-    heat_map(df_sorted, title_given="Arena", save_path="tmp/Arena/res/arena.pdf")
+    heat_map_driver(
+        records=records,
+        title="Arena (Average Reward)",
+        show_ratio=True,
+        num_games=5000,
+        save_to_path="tmp/Arena/res/main_arena/"
+    )

@@ -133,7 +133,7 @@ class ApproximateBestResponseDQN:
         if (ep + 1) % self.eval_every == 0 or ep in [0, self.num_train_episodes - 1]:
           r_mean = self.eval_against_pi(agent)
           print(f"[{ep + 1}] Mean episode rewards for best_response {-r_mean}")
-          mean_rewards.append(-r_mean)
+          mean_rewards.append((1 + r_mean) / 2)
         if (ep + 1) % self.save_every == 0:
           agent.save(self.checkpoint_dir)
 
@@ -158,7 +158,7 @@ class ApproximateBestResponseDQN:
       with open(self.checkpoint_dir + "/mean_rewards.pkl", "wb") as f:
         pickle.dump(mean_rewards, f)
       self._plot_rewards(mean_rewards)
-      return -mean_rewards[-1]
+      return mean_rewards[-1]
 
   # def restore_and_get_best_response(self):
   #   """ Restores the agent from the checkpoint. """

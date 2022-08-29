@@ -189,7 +189,7 @@ class ImperfectRecallDarkHexState : public DarkHexState {
   std::string InformationStateString(Player player) const override {
     SPIEL_CHECK_GE(player, 0);
     SPIEL_CHECK_LT(player, num_players_);
-    return absl::StrCat("P", player, " ", ViewToString(player));
+    return absl::StrCat("P", player, "\n", ViewToString(player));
   }
   void InformationStateTensor(Player player,
                               absl::Span<float> values) const override;

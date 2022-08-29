@@ -179,7 +179,7 @@ std::string DarkHexState::ViewToString(Player player) const {
       absl::StrAppend(&str, StateToString(cur_view[r * num_cols_ + c]));
     }
     if (r < (num_rows_ - 1)) {
-      absl::StrAppend(&str, "");
+      absl::StrAppend(&str, "\n");
     }
   }
   return str;
@@ -209,7 +209,7 @@ std::string DarkHexState::InformationStateString(Player player) const {
   std::string str;
   absl::StrAppend(&str, "P", player, "\n");
   absl::StrAppend(&str, ViewToString(player), "\n");
-  absl::StrAppend(&str, history_.size(), "\n");
+  // absl::StrAppend(&str, history_.size(), "\n"); // Not active in classic dark hex
   absl::StrAppend(&str, ActionSequenceToString(player));
   return str;
 }

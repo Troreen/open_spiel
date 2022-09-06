@@ -83,9 +83,7 @@ def compare_results_random_nfsp(early_terminal, no_early_terminal):
     plt.savefig("tmp/nfsp_dark_hex_comparison.png")
 
 
-def compare_results_nashconv_nfsp(early_terminal, no_early_terminal):
-    with open(f"{early_terminal}/game_res.pkl", "rb") as file:
-        game_res_0 = pickle.load(file)
+def compare_res(data_0, data_1, data_0_label, data_1_label, xlabel, ylabel, title, save_to):
     eval_per = game_res_0["eval_every"]
     nash_conv_0 = game_res_0["game_res"]
     
@@ -123,32 +121,34 @@ def compare_results_nashconv_nfsp_pr_ir(pr, ir):
     plt.plot(nash_conv_ir, label='Imperfect Recall')
     plt.plot(nash_conv_pr, label='Perfect Recall')
     plt.xlabel(f'Iteration (x{eval_per})')
-    plt.ylabel('NashConv')
+    plt.ylabel('Exploitability')
     plt.legend()
     
     # save
     plt.tight_layout()
-    plt.savefig("tmp/nfsp_ir_pr_comparison_nashconv.pdf")
+    plt.savefig("tmp/nfsp_pr_vs_ir/nfsp_ir_pr_comparison_nashconv.pdf")
 
 
 def compare_vanilla_cfr_ir_pr(pr_path, ir_path):
-    with open(pr_path, "rb") as file:
+    with open(pr_path + "/game_res.pkl", "rb") as file:
         pr_res = pickle.load(file)
-    with open(ir_path, "rb") as file:
+    with open(ir_path + "/game_res.pkl", "rb") as file:
         ir_res = pickle.load(file)
-
+    eval_per = pr_res["eval_every"]
+    exp_pr = pr_res["game_res"]
+    exp_ir = ir_res["game_res"]
     figure = plt.figure()
-    plt.title('2x2 Dark Hex Vanilla CFR')
-    plt.plot(ir_res, label='Imperfect Recall')
-    plt.plot(pr_res, label='Perfect Recall')
-    plt.xlabel(f'Iteration (x10)')
-    plt.ylabel('NashConv')
+    plt.title('3x2 Dark Hex Vanilla CFR')
+    plt.plot(exp_ir, label='Imperfect Recall')
+    plt.plot(exp_pr, label='Perfect Recall')
+    plt.xlabel(f'Iteration')
+    plt.ylabel('Exploitability')
     plt.legend()
 
     # save
-    plt.savefig("tmp/vanilla_cfr_dark_hex_comparison.png")
+    plt.savefig("tmp/vanillacfr_pr_vs_ir/vanilla_cfr_dark_hex_comparison.pdf")
 
 
 if __name__ == "__main__":
-    # compare_results_nashconv_nfsp("tmp/nfsp_test_2x2_early", "tmp/nfsp_test_2x2_no_early")
-    compare_results_nashconv_nfsp_pr_ir("tmp/dark_hex_mccfr_3x2_pr", "tmp/dark_hex_mccfr_3x2_ir")
+    compare_results_nashconv_nfsp_pr_ir("tmp/nfsp_pr_vs_ir/dark_hex", "tmp/nfsp_pr_vs_ir/dark_hex_ir")
+    compare_vanilla_cfr_ir_pr("tmp/vanillacfr_pr_vs_ir/dark_hex", "tmp/vanillacfr_pr_vs_ir/dark_hex_ir")

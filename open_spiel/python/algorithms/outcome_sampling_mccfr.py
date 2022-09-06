@@ -25,7 +25,7 @@ class OutcomeSamplingSolver(mccfr.MCCFRSolverBase):
   def __init__(self, game):
     super().__init__(game)
     # This is the epsilon exploration factor. When sampling episodes, the
-    # updating player will sampling according to expl * uniform + (1 - expl) *
+    # updating player will sample according to expl * uniform + (1 - expl) *
     # current_policy.
     self._expl = 0.6
 
@@ -44,19 +44,6 @@ class OutcomeSamplingSolver(mccfr.MCCFRSolverBase):
       state = self._game.new_initial_state()
       self._episode(
           state, update_player, my_reach=1.0, opp_reach=1.0, sample_reach=1.0)
-
-  def _baseline(self, state, info_state, aidx):  # pylint: disable=unused-argument
-    # Default to vanilla outcome sampling
-    return 0
-
-  def _baseline_corrected_child_value(self, state, info_state, sampled_aidx,
-                                      aidx, child_value, sample_prob):
-    # Applies Eq. 9 of Schmid et al. '19
-    baseline = self._baseline(state, info_state, aidx)
-    if aidx == sampled_aidx:
-      return baseline + (child_value - baseline) / sample_prob
-    else:
-      return baseline
 
   def _episode(self, state, update_player, my_reach, opp_reach, sample_reach):
     """Runs an episode of outcome sampling.
@@ -109,14 +96,8 @@ class OutcomeSamplingSolver(mccfr.MCCFRSolverBase):
                                 new_opp_reach, new_sample_reach)
 
     # Compute each of the child estimated values.
-    child_values = np.zeros(num_legal_actions, dtype=np.float64)
-    for aidx in range(num_legal_actions):
-      child_values[aidx] = self._baseline_corrected_child_value(
-          state, infostate_info, sampled_aidx, aidx, child_value,
-          sample_policy[aidx])
-    value_estimate = 0
-    for aidx in range(num_legal_actions):
-      value_estimate += policy[aidx] * child_values[aidx]
+    child_value = child_value / sample_policy[sampled_aidx]
+    value_estimate = policy[sampled_aidx] * child_value
 
     if cur_player == update_player:
       # Now the regret and avg strategy updates.
@@ -136,7 +117,10 @@ class OutcomeSamplingSolver(mccfr.MCCFRSolverBase):
       for aidx in range(num_legal_actions):
         # Estimate for the counterfactual value of the policy replaced by always
         # choosing sampled_aidx at this information state.
-        cf_action_value = child_values[aidx] * opp_reach / sample_reach
+        if aidx == sampled_aidx:
+          cf_action_value = child_value * opp_reach / sample_reach
+        else:
+          cf_action_value = 0.
         self._add_regret(info_state_key, aidx, cf_action_value - cf_value)
 
       # update the average policy

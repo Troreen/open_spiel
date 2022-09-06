@@ -122,7 +122,7 @@ def arena(n):
                 obs_state_size=ir_obs_size, pone=True, imperfect_recall=True,
                 sess=sess, name="NFSP-IR-p"),
             # MCCFR - Perfect Recall
-            DHM('npone_pr', npone_pr_policy, name="MCCFR-PR"),
+            # DHM('npone_pr', npone_pr_policy, name="MCCFR-PR"),
             # MCCFR - Imperfect Recall with no pONE
             DHM('pone_ir', pone_ir_policy, name="MCCFR-IR"),
             # MCCFR - Imperfect Recall with pONE
@@ -172,4 +172,20 @@ if __name__ == "__main__":
         show_ratio=True,
         num_games=5000,
         save_to_path="tmp/Arena/res/main_arena/"
+    )
+    heat_map_driver(
+        records=records,
+        title="Arena (Average Reward)",
+        ignore_columns=["SIMCAP", "SIMCAP+", "SIMCAP-L", "SIMCAP-L+"],
+        show_ratio=True,
+        num_games=5000,
+        save_to_path="tmp/Arena/res/no_simcap/"
+    )
+    heat_map_driver(
+        records=records,
+        title="Arena (Average Reward)",
+        ignore_columns=["SIMCAP+", "SIMCAP-L+"],
+        show_ratio=True,
+        num_games=5000,
+        save_to_path="tmp/Arena/res/no_simcap+/"
     )

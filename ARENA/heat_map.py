@@ -19,6 +19,7 @@ def heat_map(df, num_players, title_given="Arena", save_path="tmp/Arena/res/aren
                 xticklabels=df.columns, fmt='.3g', yticklabels=df.index, linewidths=0.5)
     plt.tick_params(axis='both', which='major', labelsize=13, labelbottom = False, bottom=False, top = False, labeltop=True)
     plt.xticks(rotation=90)
+    plt.yticks(rotation=0)
     plt.title(title_given, fontsize=18)
     plt.xlabel("Second Player", fontsize=15)
     plt.ylabel("First Player", fontsize=15)
@@ -74,7 +75,7 @@ def heat_map_driver(records, title, ignore_columns=None, show_ratio=False,
         os.makedirs(save_to_path)
     df_sorted.to_csv(save_to_path+"arena.csv")
     print("\033[1m\033[32m" + "Results saved to " + save_to_path + "\033[0m")
-    heat_map(df_sorted, num_players, title_given=title, save_path=save_to_path + "arena.pdf")
+    heat_map(df_sorted, num_players, title_given=title, save_path=save_to_path + "arena.png")
 
 
 if __name__ == "__main__":
@@ -99,8 +100,8 @@ if __name__ == "__main__":
     heat_map_driver(
         records=records,
         title="Arena (Average Reward)",
-        # ignore_columns=["SIMCAP+", "SIMCAP-L+"],
+        ignore_columns=["NFSP-IR", "NFSP-PR", "NFSP-IR-p", "MCCFR-IR", "SIMCAP+"],
         show_ratio=True,
         num_games=5000,
-        save_to_path="tmp/Arena/res/simcap_test/"
+        save_to_path="tmp/Arena/res/no_clutter_2/"
     )

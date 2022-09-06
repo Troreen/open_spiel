@@ -530,10 +530,10 @@ class BestResponsePolicyIR(openspiel_policy.Policy):
     if state.is_terminal():
       return state.returns()[1-self._player_id] # get the value of the evaluated player
     win_prob = 0.0
-    a_p = self.action_probabilities(state).items()
+    a_p = {k: v for k, v in self.action_probabilities(state).items()}
     if state.current_player() == self._player_id:
       self.tabular_pi[state.information_state_string()] = a_p
-    for action, prob in a_p:
+    for action, prob in a_p.items():
       next_state = state.child(action)
       win_prob += prob * self._play_game(next_state)
     return win_prob

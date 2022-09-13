@@ -55,10 +55,16 @@ InformationStateTensor(1):
 ◯◯◯  ◯◯◯  ◉◉◉
 ObservationString(0) = "...\n...\n..."
 ObservationString(1) = "...\n...\n..."
-ObservationTensor(0): ◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯
-ObservationTensor(1): ◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯
-Rewards() = [0, 0]
-Returns() = [0, -0]
+ObservationTensor(0):
+◯◯◯  ◯◯◯  ◉◉◉
+◯◯◯  ◯◯◯  ◉◉◉
+◯◯◯  ◯◯◯  ◉◉◉
+ObservationTensor(1):
+◯◯◯  ◯◯◯  ◉◉◉
+◯◯◯  ◯◯◯  ◉◉◉
+◯◯◯  ◯◯◯  ◉◉◉
+Rewards() = [0.0, 0.0]
+Returns() = [0.0, -0.0]
 LegalActions() = [0, 1, 2, 3, 4, 5, 6, 7, 8]
 StringLegalActions() = ["y(0,0)", "y(1,0)", "y(2,0)", "x(0,1)", "x(1,1)", "x(2,1)", "z(0,2)", "z(1,2)", "z(2,2)"]
 
@@ -87,10 +93,16 @@ InformationStateTensor(1):
 ◯◯◯  ◯◯◯  ◉◉◉
 ObservationString(0) = "...\n.x.\n..."
 ObservationString(1) = "...\n...\n..."
-ObservationTensor(0): ◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯
-ObservationTensor(1): ◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯
-Rewards() = [0, 0]
-Returns() = [0, -0]
+ObservationTensor(0):
+◯◯◯  ◯◯◯  ◉◉◉
+◯◉◯  ◯◯◯  ◉◯◉
+◯◯◯  ◯◯◯  ◉◉◉
+ObservationTensor(1):
+◯◯◯  ◯◯◯  ◉◉◉
+◯◯◯  ◯◯◯  ◉◉◉
+◯◯◯  ◯◯◯  ◉◉◉
+Rewards() = [0.0, 0.0]
+Returns() = [0.0, -0.0]
 LegalActions() = [0, 1, 2, 3, 4, 5, 6, 7, 8]
 StringLegalActions() = ["p(0,0)", "o(1,0)", "q(2,0)", "p(0,1)", "o(1,1)", "q(2,1)", "p(0,2)", "o(1,2)", "q(2,2)"]
 
@@ -118,11 +130,17 @@ InformationStateTensor(1):
 ◯◯◯  ◯◯◯  ◉◉◉
 ◯◯◯  ◉◯◯  ◯◉◉
 ObservationString(0) = "...\n.x.\n..."
-ObservationString(1) = "...\n...\n..o"
-ObservationTensor(0): ◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯
-ObservationTensor(1): ◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◉◯◯◯◯◯
-Rewards() = [0, 0]
-Returns() = [0, -0]
+ObservationString(1) = "...\n...\no.."
+ObservationTensor(0):
+◯◯◯  ◯◯◯  ◉◉◉
+◯◉◯  ◯◯◯  ◉◯◉
+◯◯◯  ◯◯◯  ◉◉◉
+ObservationTensor(1):
+◯◯◯  ◯◯◯  ◉◉◉
+◯◯◯  ◯◯◯  ◉◉◉
+◯◯◯  ◉◯◯  ◯◉◉
+Rewards() = [0.0, 0.0]
+Returns() = [0.0, -0.0]
 LegalActions() = [0, 1, 2, 3, 5, 6, 7, 8]
 StringLegalActions() = ["y(0,0)", "y(1,0)", "y(2,0)", "x(0,1)", "x(2,1)", "z(0,2)", "z(1,2)", "z(2,2)"]
 
@@ -139,18 +157,30 @@ HistoryString() = "4, 6, 8"
 IsChanceNode() = False
 IsSimultaneousNode() = False
 CurrentPlayer() = 1
-InformationStateString(0) = "P0 ...\n.x.\nx.."
-InformationStateString(1) = "P1 ...\n...\n..o"
-InformationStateTensor(0): binvec(268, 0x804020100404010100802000002000000000000000000000000000000000000000)
-InformationStateTensor(1): binvec(268, 0x804020100804020101000080400000000000000000000000000000000000000000)
-ObservationString(0) = "...\n.x.\nx.."
-ObservationString(1) = "...\n...\n..o"
-ObservationTensor(0): ◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯
-ObservationTensor(1): ◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◉◯◯◯◯◯
-Rewards() = [0, 0]
-Returns() = [0, -0]
-LegalActions() = [0, 1, 2, 3, 4, 5, 6, 7]
-StringLegalActions() = ["p(0,0)", "o(1,0)", "q(2,0)", "p(0,1)", "o(1,1)", "q(2,1)", "p(0,2)", "q(1,2)"]
+InformationStateString(0) = "P0\n...\n.x.\n..x"
+InformationStateString(1) = "P1\n...\n...\no.."
+InformationStateTensor(0):
+◯◯◯  ◯◯◯  ◉◉◉
+◯◉◯  ◯◯◯  ◉◯◉
+◯◯◉  ◯◯◯  ◉◉◯
+InformationStateTensor(1):
+◯◯◯  ◯◯◯  ◉◉◉
+◯◯◯  ◯◯◯  ◉◉◉
+◯◯◯  ◉◯◯  ◯◉◉
+ObservationString(0) = "...\n.x.\n..x"
+ObservationString(1) = "...\n...\no.."
+ObservationTensor(0):
+◯◯◯  ◯◯◯  ◉◉◉
+◯◉◯  ◯◯◯  ◉◯◉
+◯◯◉  ◯◯◯  ◉◉◯
+ObservationTensor(1):
+◯◯◯  ◯◯◯  ◉◉◉
+◯◯◯  ◯◯◯  ◉◉◉
+◯◯◯  ◉◯◯  ◯◉◉
+Rewards() = [0.0, 0.0]
+Returns() = [0.0, -0.0]
+LegalActions() = [0, 1, 2, 3, 4, 5, 7, 8]
+StringLegalActions() = ["p(0,0)", "o(1,0)", "q(2,0)", "p(0,1)", "p(1,1)", "q(2,1)", "p(1,2)", "q(2,2)"]
 
 # Apply action "p(1,1)"
 action: 4
@@ -165,18 +195,30 @@ HistoryString() = "4, 6, 8, 4"
 IsChanceNode() = False
 IsSimultaneousNode() = False
 CurrentPlayer() = 1
-InformationStateString(0) = "P0 ...\n.x.\nx.."
-InformationStateString(1) = "P1 ...\n...\nx.o"
-InformationStateTensor(0): binvec(268, 0x804020100404010100802000002000000000000000000000000000000000000000)
-InformationStateTensor(1): binvec(268, 0x804020100804010101000080400204000000000000000000000000000000000000)
-ObservationString(0) = "...\n.x.\nx.."
-ObservationString(1) = "...\n...\nx.o"
-ObservationTensor(0): ◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯
-ObservationTensor(1): ◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◉◯◯◯◯◯
-Rewards() = [0, 0]
-Returns() = [0, -0]
-LegalActions() = [0, 1, 2, 3, 4, 5, 7]
-StringLegalActions() = ["p(0,0)", "o(1,0)", "q(2,0)", "p(0,1)", "o(1,1)", "q(2,1)", "q(1,2)"]
+InformationStateString(0) = "P0\n...\n.x.\n..x"
+InformationStateString(1) = "P1\n...\n.x.\no.."
+InformationStateTensor(0):
+◯◯◯  ◯◯◯  ◉◉◉
+◯◉◯  ◯◯◯  ◉◯◉
+◯◯◉  ◯◯◯  ◉◉◯
+InformationStateTensor(1):
+◯◯◯  ◯◯◯  ◉◉◉
+◯◉◯  ◯◯◯  ◉◯◉
+◯◯◯  ◉◯◯  ◯◉◉
+ObservationString(0) = "...\n.x.\n..x"
+ObservationString(1) = "...\n.x.\no.."
+ObservationTensor(0):
+◯◯◯  ◯◯◯  ◉◉◉
+◯◉◯  ◯◯◯  ◉◯◉
+◯◯◉  ◯◯◯  ◉◉◯
+ObservationTensor(1):
+◯◯◯  ◯◯◯  ◉◉◉
+◯◉◯  ◯◯◯  ◉◯◉
+◯◯◯  ◉◯◯  ◯◉◉
+Rewards() = [0.0, 0.0]
+Returns() = [0.0, -0.0]
+LegalActions() = [0, 1, 2, 3, 5, 7, 8]
+StringLegalActions() = ["p(0,0)", "o(1,0)", "q(2,0)", "p(0,1)", "q(2,1)", "p(1,2)", "q(2,2)"]
 
 # Apply action "q(2,1)"
 action: 5
@@ -191,18 +233,30 @@ HistoryString() = "4, 6, 8, 4, 5"
 IsChanceNode() = False
 IsSimultaneousNode() = False
 CurrentPlayer() = 0
-InformationStateString(0) = "P0 ...\n.x.\nx.."
-InformationStateString(1) = "P1 ...\n..o\nx.o"
-InformationStateTensor(0): binvec(268, 0x804020100404010100802000002000000000000000000000000000000000000000)
-InformationStateTensor(1): binvec(268, 0x804020100808010101000080400204410000000000000000000000000000000000)
-ObservationString(0) = "...\n.x.\nx.."
-ObservationString(1) = "...\n..o\nx.o"
-ObservationTensor(0): ◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯
-ObservationTensor(1): ◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◉◯◯◯◯◯
-Rewards() = [0, 0]
-Returns() = [0, -0]
-LegalActions() = [0, 1, 2, 3, 5, 7, 8]
-StringLegalActions() = ["y(0,0)", "X(1,0)", "X(2,0)", "z(0,1)", "z(2,1)", "z(1,2)", "z(2,2)"]
+InformationStateString(0) = "P0\n...\n.x.\n..x"
+InformationStateString(1) = "P1\n...\n.xo\no.."
+InformationStateTensor(0):
+◯◯◯  ◯◯◯  ◉◉◉
+◯◉◯  ◯◯◯  ◉◯◉
+◯◯◉  ◯◯◯  ◉◉◯
+InformationStateTensor(1):
+◯◯◯  ◯◯◯  ◉◉◉
+◯◉◯  ◯◯◉  ◉◯◯
+◯◯◯  ◉◯◯  ◯◉◉
+ObservationString(0) = "...\n.x.\n..x"
+ObservationString(1) = "...\n.xo\no.."
+ObservationTensor(0):
+◯◯◯  ◯◯◯  ◉◉◉
+◯◉◯  ◯◯◯  ◉◯◉
+◯◯◉  ◯◯◯  ◉◉◯
+ObservationTensor(1):
+◯◯◯  ◯◯◯  ◉◉◉
+◯◉◯  ◯◯◉  ◉◯◯
+◯◯◯  ◉◯◯  ◯◉◉
+Rewards() = [0.0, 0.0]
+Returns() = [0.0, -0.0]
+LegalActions() = [0, 1, 2, 3, 5, 6, 7]
+StringLegalActions() = ["y(0,0)", "y(1,0)", "y(2,0)", "x(0,1)", "z(2,1)", "z(0,2)", "z(1,2)"]
 
 # Apply action "y(0,0)"
 action: 0
@@ -229,13 +283,25 @@ HistoryString() = "4, 6, 8, 4, 5, 0, 2, 1, 7"
 IsChanceNode() = False
 IsSimultaneousNode() = False
 CurrentPlayer() = -4
-InformationStateString(0) = "P0 x..\nXxo\nx.."
-InformationStateString(1) = "P1 .o.\n..o\nx.o"
-InformationStateTensor(0): binvec(268, 0x404020010408010100802000002000000400000080400000000000000000000000)
-InformationStateTensor(1): binvec(268, 0x808020100808010101000080400204410001400000000000000000000000000000)
-ObservationString(0) = "x..\nXxo\nx.."
-ObservationString(1) = ".o.\n..o\nx.o"
-ObservationTensor(0): ◯◯◯◯◯◉◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◯◯◯◯◉◯◯◯◯◯◉◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯
-ObservationTensor(1): ◯◯◯◯◉◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◉◯◯◯◯◯◯◯◉◯◯◯◯◯
-Rewards() = [1, -1]
-Returns() = [1, -1]
+InformationStateString(0) = "P0\nxx.\n.x.\n..x"
+InformationStateString(1) = "P1\n..o\n.xo\noO."
+InformationStateTensor(0):
+◉◉◯  ◯◯◯  ◯◯◉
+◯◉◯  ◯◯◯  ◉◯◉
+◯◯◉  ◯◯◯  ◉◉◯
+InformationStateTensor(1):
+◯◯◯  ◯◯◉  ◉◉◯
+◯◉◯  ◯◯◉  ◉◯◯
+◯◯◯  ◉◉◯  ◯◯◉
+ObservationString(0) = "xx.\n.x.\n..x"
+ObservationString(1) = "..o\n.xo\noO."
+ObservationTensor(0):
+◉◉◯  ◯◯◯  ◯◯◉
+◯◉◯  ◯◯◯  ◉◯◉
+◯◯◉  ◯◯◯  ◉◉◯
+ObservationTensor(1):
+◯◯◯  ◯◯◉  ◉◉◯
+◯◉◯  ◯◯◉  ◉◯◯
+◯◯◯  ◉◉◯  ◯◯◉
+Rewards() = [-1.0, 1.0]
+Returns() = [-1.0, 1.0]

@@ -120,11 +120,9 @@ void CheatState::InformationStateTensor(Player player,
 }
 
 std::vector<Action> CheatState::LegalActions() const {
-  // Todo: Find and add all the legal actions for the given or current player.
-  // Make sure to include the bluff system as well as the pass system.
- 
   std::vector<Action> legal_actions;
-  legal_actions.reserve(kNumTricks - num_cards_played_ / kNumPlayers);
+  SPIEL_CHECK_TRUE(current_player_ == 0 || current_player_ == 1);
+  legal_actions.reserve(currentHandSize[current_player_]);
 
   // Each action in cheat will be a tuple of (card actually played, card claimed)
   // At each point in the game, the player can:
@@ -132,8 +130,15 @@ std::vector<Action> CheatState::LegalActions() const {
   // 2. Card claimed: Any card in the deck initially (even if it was played).
   // 3. Pass: Pass the turn to the next player.
   for (int card = 0; card < kNumCards; ++card) {
-    if (player_hand_[card] == current_player_) legal_actions.push_back(card);
+    for (int claim = 0; claim < kNumCards; ++claim) {
+      if (player_hand[card] == current_player_) {
+        legal_actions.push_back(card * kNumCards + claim); 
+      }
+    }
   }
+  legal_actions.push_back(kActionPass);
+  if ()
+  legal_actions.push_back(kActionCallBluff);
   return legal_actions;
 }
 
@@ -181,13 +186,23 @@ void CheatState::DoApplyAction(Action action) {
     for(int i = 0; i < kNumPlayers; ++i){
       for(int j = 0; j < kNumInitCardsPerPlayer; ++j){
         player_hand_[deck_[num_cards_dealt_]] = i;
+        currentHandSize[i]++;
         num_cards_dealt_++;
       }
     }
   } else {
     // Players play their cards.
+    // Todo: Add the checks to make sure the action is legal.
+    // Get the card played and the card claimed.
+    player_hand_[card_played] = absl::nullopt;
+    // Update the player_hand_ and the card_claimed_ and the card_seen_ (if needed)
     
-  }
+    // Update the num_cards_played_.
+    num_cards_played++;
+
+    // Update current player
+    current_player_ = (current_player_ + 1) % kNumPlayers;
+  } 
 }
 
 void CheatState::ApplyPlayAction(int card) {
